@@ -1,14 +1,18 @@
 {
+  "id": "./",
   "name": "FertCalc - Formulações de Fertilizantes",
   "short_name": "FertCalc",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#edf8f1",
   "theme_color": "#22b86b",
   "description": "Desenvolvimento, cálculo, armazenamento e relatório de formulações de fertilizantes.",
+  "prefer_related_applications": false,
   "icons": [
-    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
-    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
   ]
 }
