@@ -31,3 +31,9 @@ PRINCIPAIS MUDANÇAS
 - PDF inclui garantias calculadas, garantia proposta por truncamento, metas, mínimos regulatórios, formulação, custo e formas de N.
 - Compartilhar PDF usa o compartilhamento nativo do celular quando suportado; caso contrário, baixa o PDF.
 - Backup JSON completo.
+
+v3.3 — instalação Android/WebAPK
+- Manifest, start_url, scope, ícones e service worker agora usam caminhos absolutos do GitHub Pages: /ferticalc_V6/.
+- Esta versão é específica para https://victorcotrimgb.github.io/ferticalc_V6/.
+- Após publicar, remova o atalho antigo e instale novamente pelo botão "Instalar app".
+- Para confirmar WebAPK: FertCalc deve aparecer em Configurações > Aplicativos. Se não aparecer, o navegador criou apenas um atalho.

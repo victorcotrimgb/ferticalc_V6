@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#22b86b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icon-192.png" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="/ferticalc_V6/manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ferticalc_V6/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="/ferticalc_V6/icon-192.png" />
   <title>FertCalc</title>
   <style>
     :root{
@@ -328,7 +328,7 @@ let deferredInstallPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;const b=document.getElementById('installPwaBtn');if(b)b.style.display='inline-flex'});
 document.getElementById('installPwaBtn')?.addEventListener('click',async()=>{if(!deferredInstallPrompt){toast('Use o menu do navegador e escolha “Instalar app”.');return}deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice}catch(e){}deferredInstallPrompt=null;document.getElementById('installPwaBtn').style.display='none'});
 window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;const b=document.getElementById('installPwaBtn');if(b)b.style.display='none';toast('FertCalc instalado como aplicativo.')});
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/ferticalc_V6/sw.js',{scope:'/ferticalc_V6/'}).catch(()=>{}));
 render();switchView(state.lastView||'formula');
 </script>
 </body>
