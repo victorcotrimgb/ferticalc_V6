@@ -2,747 +2,284 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#37b26b" />
-  <title>FertCalc — Formulações de Fertilizantes</title>
-  <link rel="icon" type="image/png" href="icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#22b86b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>FertCalc</title>
   <style>
     :root{
-      --bg:#edf8f1;
-      --panel:rgba(255,255,255,.88);
-      --panel-solid:#ffffff;
-      --panel-2:#f6fcf8;
-      --text:#123126;
-      --muted:#5c7c6f;
-      --line:#d9ece0;
-      --primary:#2fb368;
-      --primary-2:#6fd88b;
-      --primary-3:#1d8d51;
-      --accent:#dff7e9;
-      --ok:#0f8a4c;
-      --warn:#b97600;
-      --bad:#ca3c3c;
-      --shadow:0 18px 50px rgba(20,80,40,.10);
-      --radius:22px;
-      --radius-sm:14px;
+      --bg:#edf8f1;--bg2:#f6fbf8;--panel:rgba(255,255,255,.9);--panel2:#f4fbf7;
+      --text:#123329;--muted:#607a70;--line:#d5e9df;--primary:#22b86b;--primary2:#61d98e;
+      --primary-dark:#108956;--ok:#15885a;--warn:#b87500;--bad:#c84a4a;--shadow:0 14px 36px rgba(16,91,60,.09);
+      --r:22px;--rs:14px;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 10% 0%, rgba(47,179,104,.12), transparent 26%),
-        radial-gradient(circle at 95% 8%, rgba(111,216,139,.15), transparent 24%),
-        var(--bg);
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      min-height:100vh;
-    }
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    .app{max-width:1560px;margin:0 auto;padding:22px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:52px;height:52px;border-radius:16px;overflow:hidden;box-shadow:0 14px 30px rgba(47,179,104,.25);flex:0 0 52px;background:white}
-    .logo img{width:100%;height:100%;display:block;object-fit:cover}
-    .brand h1{font-size:22px;margin:0;letter-spacing:-.02em}
-    .brand small{display:block;color:var(--muted);margin-top:2px}
-    .actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
-    .btn{border:1px solid var(--line);background:rgba(255,255,255,.9);color:var(--text);padding:10px 14px;border-radius:12px;font-weight:700;box-shadow:0 4px 14px rgba(20,80,40,.05);}
-    .btn:hover{transform:translateY(-1px)}
-    .btn.primary{background:linear-gradient(145deg,var(--primary),var(--primary-2));color:white;border-color:transparent}
-    .btn.ghost{background:transparent;box-shadow:none}
-    .btn.danger{color:var(--bad)}
-    .tabs{display:flex;gap:6px;background:rgba(255,255,255,.62);padding:6px;border:1px solid rgba(255,255,255,.78);border-radius:15px;width:max-content;box-shadow:0 6px 20px rgba(20,80,40,.05);margin-bottom:18px;backdrop-filter:blur(18px);}
-    .tab{border:0;background:transparent;padding:10px 16px;border-radius:11px;color:var(--muted);font-weight:800;}
-    .tab.active{background:white;color:var(--primary-3);box-shadow:0 6px 16px rgba(20,80,40,.08)}
-    .view{display:none} .view.active{display:block}
-    .panel{background:var(--panel);border:1px solid rgba(255,255,255,.88);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(22px);}
-    .formula-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(360px,.85fr);gap:18px}
-    .left-stack,.right-stack{display:flex;flex-direction:column;gap:18px}
-    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 18px 0;}
-    .panel-head h2,.panel-head h3{margin:0;font-size:16px;letter-spacing:-.01em}
-    .panel-body{padding:18px}
-    .form-grid{display:grid;grid-template-columns:1.3fr .8fr .7fr .7fr .7fr;gap:10px}
-    label.field{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:12px;font-weight:800}
-    input,select,textarea{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.95);color:var(--text);padding:10px 11px;border-radius:11px;outline:none;}
-    input:focus,select:focus,textarea:focus{border-color:#97ddae;box-shadow:0 0 0 3px rgba(47,179,104,.11)}
-    .table-wrap{overflow:auto}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
-    th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:rgba(246,252,248,.88);position:sticky;top:0}
-    td{font-size:13px}
-    td.num,th.num{text-align:right}
-    .mp-select{min-width:220px}
-    .kg-input{width:105px;text-align:right}
-    .icon-btn{border:0;background:transparent;border-radius:9px;padding:7px;color:var(--muted);}
-    .icon-btn:hover{background:#edf8f1;color:var(--bad)}
-    .total-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:13px;padding:12px 14px;background:var(--panel-2);border:1px solid var(--line);border-radius:13px;}
-    .progress{height:9px;background:#e2efe7;border-radius:999px;overflow:hidden;flex:1}
-    .progress > div{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-2));width:0%;transition:.2s}
-    .nutrient-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
-    .nut-card{padding:13px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line)}
-    .nut-card span{display:block;color:var(--muted);font-size:11px;font-weight:800}
-    .nut-card strong{font-size:24px;letter-spacing:-.03em}
-    .guarantee-table input{width:92px;text-align:right;padding:8px}
-    .status-dot{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;}
-    .dot{width:8px;height:8px;border-radius:50%}
-    .ok{color:var(--ok)} .ok .dot{background:var(--ok)}
-    .warn{color:var(--warn)} .warn .dot{background:var(--warn)}
-    .bad{color:var(--bad)} .bad .dot{background:var(--bad)}
-    .nbar{height:13px;border-radius:999px;overflow:hidden;background:#e3efe7;display:flex;margin:12px 0 10px}
-    .nbar span:nth-child(1){background:#33b96a}
-    .nbar span:nth-child(2){background:#71d794}
-    .nbar span:nth-child(3){background:#bdeecf}
-    .nlegend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:12px}
-    .nlegend div{background:var(--panel-2);border:1px solid var(--line);padding:9px;border-radius:10px}
-    .nlegend b{display:block;font-size:15px;margin-top:2px}
-    .cost-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .cost-box{padding:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:14px}
-    .cost-box small{display:block;color:var(--muted);font-weight:800}
-    .cost-box strong{display:block;font-size:21px;margin-top:4px}
-    .cost-box.big{grid-column:1/-1;background:linear-gradient(145deg,rgba(47,179,104,.11),rgba(111,216,139,.07));border-color:#c8ebd4}
-    .extras-list{display:flex;flex-direction:column;gap:9px;margin-top:12px}
-    .extra-row{display:grid;grid-template-columns:1.4fr .85fr .65fr 36px;gap:8px}
-    .hint{font-size:12px;color:var(--muted);line-height:1.5}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
-    .search{min-width:240px}
-    .mp-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-    .mp-card{background:var(--panel);border:1px solid rgba(255,255,255,.92);border-radius:18px;box-shadow:var(--shadow);padding:15px;}
-    .mp-card-top{display:flex;justify-content:space-between;gap:10px}
-    .mp-card h3{margin:0;font-size:15px}
-    .badges{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
-    .badge{font-size:10px;font-weight:900;padding:5px 7px;border-radius:999px;background:#e9f9ef;color:#267b4a}
-    .mp-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-    .mp-meta div{padding:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px}
-    .mp-meta small{display:block;color:var(--muted)}
-    .mp-meta b{font-size:13px}
-    .modal-backdrop{position:fixed;inset:0;background:rgba(12,26,20,.42);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000;backdrop-filter:blur(8px);}
-    .modal-backdrop.open{display:flex}
-    .modal{width:min(980px,100%);max-height:92vh;overflow:auto;background:#f7fdf9;border-radius:22px;box-shadow:0 28px 80px rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.8);}
-    .modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#f7fdf9;z-index:3}
-    .modal-head h2{margin:0;font-size:18px}
-    .modal-body{padding:18px}
-    .modal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-    .section-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:18px 0 9px;font-weight:900}
-    .guar-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
-    .profile-checks{display:flex;flex-wrap:wrap;gap:8px}
-    .checkpill{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:10px;background:white;border:1px solid var(--line)}
-    .checkpill input{width:auto}
-    .empty{padding:28px;text-align:center;color:var(--muted)}
-    .saved-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
-    .footer-note{text-align:center;color:var(--muted);font-size:11px;padding:20px 0}
-    .mobile-only{display:none}
-    .desktop-only{display:block}
-    .mobile-cards{display:flex;flex-direction:column;gap:10px}
-    .mobile-card{background:var(--panel-2);border:1px solid var(--line);border-radius:16px;padding:12px}
-    .mobile-card .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-    .mobile-card .cell{background:white;border:1px solid var(--line);border-radius:10px;padding:8px}
-    .mobile-card .cell small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em}
-    .mobile-card .cell b{font-size:13px}
-    .mobile-row-actions{display:flex;gap:8px;align-items:center;margin-top:10px}
-    .mobile-card input, .mobile-card select{padding:9px 10px}
-    @media(max-width:1080px){
-      .formula-grid{grid-template-columns:1fr}
-      .right-stack{display:grid;grid-template-columns:1fr 1fr}
-      .right-stack .panel:first-child{grid-column:1/-1}
-      .mp-cards{grid-template-columns:repeat(2,1fr)}
-    }
-    @media(max-width:760px){
-      .app{padding:12px}
-      .topbar{align-items:stretch;flex-direction:column}
-      .actions{justify-content:stretch;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-      .actions .btn{width:100%;padding:12px 10px}
-      .tabs{width:100%;display:grid;grid-template-columns:1fr 1fr}
-      .tab{width:100%;text-align:center}
-      .form-grid{grid-template-columns:1fr}
-      .form-grid .wide{grid-column:auto}
-      .right-stack{display:flex}
-      .nutrient-cards{grid-template-columns:1fr 1fr}
-      .nut-card strong{font-size:20px}
-      .mp-cards{grid-template-columns:1fr}
-      .modal{width:100%;max-height:100vh;border-radius:18px}
-      .modal-grid{grid-template-columns:1fr 1fr}
-      .guar-grid{grid-template-columns:repeat(2,1fr)}
-      .extra-row{grid-template-columns:1fr 1fr}
-      .extra-row .remove-extra{grid-column:2;justify-self:end}
-      .saved-row{grid-template-columns:1fr}
-      .desktop-only{display:none !important}
-      .mobile-only{display:block !important}
-      .panel-head{padding:16px 16px 0}
-      .panel-body{padding:16px}
-      .total-row{flex-direction:column;align-items:stretch}
-      .brand h1{font-size:20px}
-      .logo{width:48px;height:48px;flex-basis:48px}
-    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 0 0,#d9f5e4 0,transparent 32%),radial-gradient(circle at 100% 4%,#dff7e8 0,transparent 28%),var(--bg);min-height:100vh}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:1180px;margin:auto;padding:18px 18px 90px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:13px}.brand-logo{width:58px;height:58px;border-radius:18px;background:linear-gradient(145deg,#0f8e70,var(--primary2));box-shadow:0 13px 28px rgba(20,150,91,.22);display:grid;place-items:center}.brand-logo img{width:48px;height:48px}.brand h1{margin:0;font-size:28px;letter-spacing:-.04em}.brand p{margin:2px 0 0;color:var(--muted);font-size:14px}.top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{border:1px solid var(--line);background:rgba(255,255,255,.9);color:var(--text);padding:11px 14px;border-radius:13px;font-weight:800;box-shadow:0 4px 12px rgba(12,90,57,.05);transition:.15s}.btn:hover{transform:translateY(-1px)}.btn.primary{background:linear-gradient(145deg,var(--primary),var(--primary2));border-color:transparent;color:white}.btn.ghost{background:transparent;box-shadow:none}.btn.danger{color:var(--bad)}.btn.small{padding:8px 10px;font-size:12px}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:rgba(255,255,255,.56);border:1px solid rgba(255,255,255,.84);padding:6px;border-radius:18px;margin-bottom:18px;box-shadow:var(--shadow)}.tab{border:0;background:transparent;padding:13px 8px;border-radius:13px;color:var(--muted);font-weight:900}.tab.active{background:white;color:var(--primary-dark);box-shadow:0 6px 16px rgba(20,90,57,.08)}
+    .view{display:none}.view.active{display:block}.panel{background:var(--panel);border:1px solid rgba(255,255,255,.95);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}.panel-head{padding:18px 18px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-head h2,.panel-head h3{margin:0;font-size:18px;letter-spacing:-.02em}.panel-body{padding:18px}.hint{color:var(--muted);font-size:12px;line-height:1.45}.grid{display:grid;gap:10px}.g5{grid-template-columns:2fr 1fr 1fr 1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}label.field{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:12px;font-weight:850}input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:12px;padding:11px 12px;outline:none}input:focus,select:focus,textarea:focus{border-color:#75d49e;box-shadow:0 0 0 3px rgba(34,184,107,.11)}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}.metric{background:var(--panel2);border:1px solid var(--line);border-radius:15px;padding:12px}.metric small{display:block;color:var(--muted);font-weight:850;font-size:11px}.metric strong{display:block;font-size:24px;margin-top:2px}.metric .sub{font-size:11px;color:var(--muted)}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:10px 9px;border-bottom:1px solid var(--line);font-size:12px;text-align:left;white-space:nowrap}th{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:#f3faf6;position:sticky;top:0;z-index:1}td.num,th.num{text-align:right}tr:last-child td{border-bottom:0}.status{display:inline-flex;align-items:center;gap:6px;font-weight:850;font-size:11px}.status:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}.status.ok{color:var(--ok)}.status.warn{color:var(--warn)}.status.bad{color:var(--bad)}
+    .mp-row-card{border:1px solid var(--line);background:#fff;border-radius:16px;padding:14px;margin-bottom:10px}.mp-row-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.mp-title{font-weight:900}.mp-sub{color:var(--muted);font-size:12px;margin-top:2px}.row-actions{display:flex;gap:6px}.mini-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:12px}.mini{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:8px}.mini small{display:block;color:var(--muted);font-size:9px;font-weight:850;text-transform:uppercase}.mini b{display:block;margin-top:2px;font-size:12px}.nut-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.chip{padding:6px 8px;border-radius:999px;background:#eaf8f0;border:1px solid #d3eedf;font-size:10px;font-weight:800;color:#246a4c}.details{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}details summary{cursor:pointer;color:var(--primary-dark);font-weight:850;font-size:12px}.contrib-list{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:9px}.contrib{background:#f7fbf9;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px}.contrib b{display:block}.contrib span{color:var(--muted)}
+    .total-line{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-top:10px;padding:12px 14px;border-radius:13px;background:var(--panel2);border:1px solid var(--line)}.progress{height:9px;background:#dfeee6;border-radius:999px;overflow:hidden;flex:1}.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary2));width:0}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.toolbar>*{flex:0 0 auto}.search{min-width:240px}.spacer{flex:1}
+    .nbar{height:13px;background:#e0eee7;border-radius:999px;overflow:hidden;display:flex;margin:12px 0}.nbar i:nth-child(1){background:#4c8cff}.nbar i:nth-child(2){background:#74b3ff}.nbar i:nth-child(3){background:#a9d0ff}.n-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.n-legend div{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:9px}.n-legend small{color:var(--muted);display:block}.n-legend b{font-size:14px}
+    .costs{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.costbox{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:12px}.costbox small{color:var(--muted);display:block;font-weight:850}.costbox strong{font-size:19px;display:block;margin-top:2px}
+    .library{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.formula-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px}.formula-card h3{margin:0;font-size:16px}.formula-card p{margin:3px 0 10px;color:var(--muted);font-size:12px}.formula-card .fc-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.formula-card .fc-metrics div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px;font-size:10px}.formula-card .fc-metrics b{display:block;font-size:12px}.formula-card .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+    .mp-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.mp-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px}.mp-card h3{margin:0;font-size:16px}.mp-card p{margin:2px 0 7px;color:var(--muted);font-size:12px}.badge{display:inline-block;background:#e9f8ef;color:#24734f;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:850;margin:2px 4px 2px 0}.mp-meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.mp-meta div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px}.mp-meta small{display:block;color:var(--muted);font-size:9px}.mp-meta b{font-size:12px}
+    .auto-result{border:1px solid #bde7cf;background:linear-gradient(145deg,#f6fff9,#edf9f2);border-radius:18px;padding:14px;margin-top:13px}.auto-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.auto-head h3{margin:0;font-size:17px}.auto-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.origin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.origin-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}.origin-card h4{margin:0 0 6px;font-size:12px}.origin-bar{height:8px;border-radius:999px;overflow:hidden;background:#e6f0ea;display:flex}.origin-bar i{display:block;height:100%}.origin-lines{font-size:10px;color:var(--muted);margin-top:6px}.matrix{font-size:10px}.matrix td,.matrix th{padding:7px}
+    .modal-wrap{position:fixed;inset:0;background:rgba(15,43,33,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000;backdrop-filter:blur(7px)}.modal-wrap.open{display:flex}.modal{width:min(760px,100%);max-height:92vh;overflow:auto;background:#f8fcfa;border:1px solid rgba(255,255,255,.9);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.22)}.modal-head{position:sticky;top:0;z-index:3;background:#f8fcfa;border-bottom:1px solid var(--line);padding:16px;display:flex;align-items:center;justify-content:space-between}.modal-head h2{margin:0;font-size:18px}.modal-body{padding:16px}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.guar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.section-label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:900;margin:15px 0 8px}.check-list{display:flex;flex-direction:column;gap:7px}.candidate{display:grid;grid-template-columns:30px 1fr 90px 90px;gap:7px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:12px;background:#fff}.candidate input[type=checkbox]{width:auto}.candidate small{color:var(--muted)}
+    .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(30px);background:#153d2f;color:white;padding:10px 14px;border-radius:12px;opacity:0;pointer-events:none;transition:.2s;z-index:2000;font-size:12px;font-weight:800}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .empty{text-align:center;padding:28px;color:var(--muted)}.hidden{display:none!important}
+    @media(max-width:850px){.app{padding:12px 12px 88px}.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%}.top-actions .btn{flex:1}.g5{grid-template-columns:1fr 1fr}.g5 .wide{grid-column:1/-1}.g4{grid-template-columns:1fr 1fr}.library,.mp-cards{grid-template-columns:1fr}.mini-grid{grid-template-columns:repeat(2,1fr)}.metrics{grid-template-columns:repeat(3,1fr)}.metric strong{font-size:20px}.origin-grid{grid-template-columns:1fr}.guar-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:520px){.brand h1{font-size:24px}.brand p{font-size:12px}.brand-logo{width:52px;height:52px}.tabs{position:sticky;top:4px;z-index:20}.tab{font-size:12px}.panel-head{padding:15px 15px 0}.panel-body{padding:15px}.g5,.g4,.g3,.g2{grid-template-columns:1fr}.g5 .wide{grid-column:auto}.metrics{grid-template-columns:repeat(3,1fr);gap:6px}.metric{padding:9px}.metric strong{font-size:18px}.costs{grid-template-columns:1fr}.n-legend{grid-template-columns:1fr 1fr 1fr}.formula-card .fc-metrics{grid-template-columns:1fr 1fr}.candidate{grid-template-columns:26px 1fr}.candidate .cand-min,.candidate .cand-max{grid-column:auto}.candidate .cand-min{grid-column:1/3}.candidate .cand-max{grid-column:1/3}.modal-wrap{align-items:flex-end;padding:0}.modal{border-radius:22px 22px 0 0;max-height:94vh;width:100%}.contrib-list{grid-template-columns:1fr}.top-actions .btn{font-size:12px;padding:10px 9px}}
   </style>
-
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="FertCalc">
 </head>
 <body>
 <div class="app">
-  <div class="topbar">
+  <header class="topbar">
     <div class="brand">
-      <div class="logo"><img src="icon-192.png" alt="FertCalc"></div>
-      <div><h1>FertCalc</h1><small>Desenvolvimento de formulações de fertilizantes</small></div>
+      <div class="brand-logo"><img src="icon.svg" alt=""></div>
+      <div><h1>FertCalc</h1><p>Desenvolvimento de formulações de fertilizantes</p></div>
     </div>
-    <div class="actions">
-      <button class="btn" id="saveVersionBtn">Salvar versão</button>
-      <button class="btn" id="manageProfilesBtn">Perfis</button>
-      <button class="btn" id="installBtn">Instalar</button>
-      <button class="btn primary" id="pdfBtn">Relatório PDF</button>
+    <div class="top-actions">
+      <button class="btn" id="newFormulaBtn">+ Nova fórmula</button>
+      <button class="btn" id="saveFormulaBtn">Salvar fórmula</button>
+      <button class="btn" id="backupBtn">Backups</button>
+      <button class="btn primary" id="sharePdfBtn">Compartilhar PDF</button>
     </div>
-  </div>
+  </header>
 
-  <div class="tabs">
-    <button class="tab active" data-tab="formula">Formulação</button>
-    <button class="tab" data-tab="mps">Matérias-primas</button>
-  </div>
+  <nav class="tabs">
+    <button class="tab active" data-view="formula">Formulação</button>
+    <button class="tab" data-view="library">Fórmulas salvas</button>
+    <button class="tab" data-view="mps">Matérias-primas</button>
+  </nav>
 
   <section id="formulaView" class="view active">
-    <div class="formula-grid">
-      <div class="left-stack">
-        <div class="panel">
-          <div class="panel-head"><h2>Parâmetros da fórmula</h2><span class="hint" id="autosaveText">Salvo automaticamente</span></div>
-          <div class="panel-body">
-            <div class="form-grid">
-              <label class="field wide">Nome da fórmula<input id="formulaName" placeholder="Ex.: 10.10.30 + Ca + S"></label>
-              <label class="field">Perfil<select id="formulaProfile"></select></label>
-              <label class="field">Lote (kg)<input id="batchKg" type="number" step="1" min="1"></label>
-              <label class="field">Moeda<select id="baseCurrency"><option>BRL</option><option>USD</option></select></label>
-              <label class="field">USD → BRL<input id="fxUsdBrl" type="number" step="0.0001" min="0"></label>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head">
-            <h2>Matérias-primas da formulação</h2>
-            <button class="btn" id="addFormulaRow">+ MP</button>
-          </div>
-          <div class="panel-body">
-            <div class="table-wrap desktop-only">
-              <table>
-                <thead><tr><th>Matéria-prima</th><th class="num">kg</th><th class="num">% fórmula</th><th class="num">Preço/t</th><th class="num">Custo</th><th></th></tr></thead>
-                <tbody id="formulaRows"></tbody>
-              </table>
-            </div>
-            <div id="formulaRowsMobile" class="mobile-cards mobile-only"></div>
-            <div class="total-row">
-              <div><b>Total do lote</b><div class="hint" id="batchStatus"></div></div>
-              <div class="progress"><div id="batchProgress"></div></div>
-              <b id="batchTotal">0 / 1000 kg</b>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head">
-            <h2>Garantias, metas e mínimos</h2>
-            <span class="hint">Status considera o valor declarado após truncamento.</span>
-          </div>
-          <div class="panel-body">
-            <div class="nutrient-cards">
-              <div class="nut-card"><span>N TOTAL</span><strong id="heroN">0,0</strong></div>
-              <div class="nut-card"><span>P₂O₅</span><strong id="heroP">0,0</strong></div>
-              <div class="nut-card"><span>K₂O</span><strong id="heroK">0,0</strong></div>
-              <div class="nut-card"><span>RELAÇÃO K/N</span><strong id="heroKN">0,00</strong></div>
-            </div>
-            <div class="table-wrap desktop-only">
-              <table class="guarantee-table">
-                <thead><tr><th>Parâmetro</th><th class="num">Desejado</th><th class="num">Calculado</th><th class="num">Declarado</th><th class="num">Mín. regulatório</th><th>Status</th></tr></thead>
-                <tbody id="guaranteeRows"></tbody>
-              </table>
-            </div>
-            <div id="guaranteeCards" class="mobile-cards mobile-only"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="right-stack">
-        <div class="panel">
-          <div class="panel-head"><h3>Distribuição do nitrogênio</h3></div>
-          <div class="panel-body">
-            <div class="nbar"><span id="nbarNitric"></span><span id="nbarAmmoniacal"></span><span id="nbarAmidic"></span></div>
-            <div class="nlegend">
-              <div><span>Nítrico</span><b id="pctNitric">0,0%</b></div>
-              <div><span>Amoniacal</span><b id="pctAmmoniacal">0,0%</b></div>
-              <div><span>Amídico</span><b id="pctAmidic">0,0%</b></div>
-            </div>
-            <p class="hint" id="nBalanceHint" style="margin-bottom:0"></p>
-            <p class="hint" id="nkHint" style="margin-top:10px"></p>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head"><h3>Custos</h3><button class="btn" id="addCostBtn">+ custo</button></div>
-          <div class="panel-body">
-            <div class="cost-summary">
-              <div class="cost-box"><small>Matérias-primas / t</small><strong id="rawCostPerTon">R$ 0,00</strong></div>
-              <div class="cost-box"><small>Custos adicionais / t</small><strong id="extraCostPerTon">R$ 0,00</strong></div>
-              <div class="cost-box big"><small>Custo potencial / t</small><strong id="finalCostPerTon">R$ 0,00</strong></div>
-            </div>
-            <div id="extraCosts" class="extras-list"></div>
-            <p class="hint">Percentuais são aplicados sobre o subtotal anterior. Use nomes como Frete, Embalagem, Margem, Comissão ou Processamento.</p>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head"><h3>Versões salvas</h3></div>
-          <div class="panel-body">
-            <div class="saved-row">
-              <select id="savedSelect"><option value="">Selecione...</option></select>
-              <button class="btn" id="loadSavedBtn">Carregar</button>
-              <button class="btn danger" id="deleteSavedBtn">Excluir</button>
-            </div>
-          </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Parâmetros da fórmula</h2><span class="hint" id="autosave">Salvo localmente</span></div>
+      <div class="panel-body">
+        <div class="grid g5">
+          <label class="field wide">Nome<input id="formulaName" placeholder="Ex.: 18-5-18 + Mg + S"></label>
+          <label class="field">Perfil<select id="formulaProfile"></select></label>
+          <label class="field">Lote (kg)<input id="batchKg" type="number" min="1" step="1"></label>
+          <label class="field">Moeda<select id="baseCurrency"><option value="BRL">BRL</option><option value="USD">USD</option></select></label>
+          <label class="field">USD → BRL<input id="fx" type="number" min="0" step="0.0001"></label>
         </div>
       </div>
     </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Matérias-primas da formulação</h2><button class="btn primary" id="addMpRowBtn">+ MP</button></div>
+      <div class="panel-body">
+        <div id="formulaRows"></div>
+        <div class="total-line"><div><b>Total do lote</b><div class="hint" id="batchStatus"></div></div><div class="progress"><i id="batchProgress"></i></div><b id="batchTotal"></b></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Garantias, metas e mínimos</h2><span class="hint">Calculado × garantia proposta por truncamento × mínimo regulatório</span></div>
+      <div class="panel-body">
+        <div class="metrics">
+          <div class="metric"><small>N TOTAL</small><strong id="heroN">0</strong><span class="sub" id="heroNCalc">calc. 0</span></div>
+          <div class="metric"><small>P₂O₅</small><strong id="heroP">0</strong><span class="sub" id="heroPCalc">calc. 0</span></div>
+          <div class="metric"><small>K₂O</small><strong id="heroK">0</strong><span class="sub" id="heroKCalc">calc. 0</span></div>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Parâmetro</th><th class="num">Alvo %</th><th class="num">Calculado %</th><th class="num">Garantia proposta %</th><th class="num">Mín. regulatório %</th><th>Status</th></tr></thead><tbody id="guaranteeRows"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Distribuição do nitrogênio</h2></div>
+      <div class="panel-body">
+        <div class="nbar"><i id="barNit"></i><i id="barAmm"></i><i id="barAmi"></i></div>
+        <div class="n-legend"><div><small>Nítrico</small><b id="pctNit">0%</b><span class="hint" id="ppNit">0 p.p.</span></div><div><small>Amoniacal</small><b id="pctAmm">0%</b><span class="hint" id="ppAmm">0 p.p.</span></div><div><small>Amídico</small><b id="pctAmi">0%</b><span class="hint" id="ppAmi">0 p.p.</span></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Custos</h2></div>
+      <div class="panel-body"><div class="costs"><div class="costbox"><small>Matérias-primas / t</small><strong id="rawCost">R$ 0,00</strong></div><div class="costbox"><small>Custos adicionais / t</small><strong id="extraCost">R$ 0,00</strong></div><div class="costbox"><small>Custo total / t</small><strong id="totalCost">R$ 0,00</strong></div></div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div><h2>Formulação automática</h2><span class="hint">Usa as metas acima, limites das MPs e mínimo regulatório.</span></div><button class="btn" id="autoCandidatesBtn">MPs candidatas</button></div>
+      <div class="panel-body">
+        <div class="grid g4">
+          <label class="field">Critério<select id="autoMode"><option value="target">Mais próxima do alvo</option><option value="cost">Menor custo</option><option value="few">Menos MPs</option></select></label>
+          <label class="field">Dose mín. se usada (kg)<input id="autoMinUsed" type="number" min="0" step="0.1" value="1"></label>
+          <label class="field">Tolerância alvo (p.p.)<input id="autoTolerance" type="number" min="0.001" step="0.01" value="0.02"></label>
+          <div style="display:flex;align-items:end"><button class="btn primary" id="solveBtn" style="width:100%">⚡ Calcular formulação</button></div>
+        </div>
+        <div id="autoResult"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="libraryView" class="view">
+    <div class="panel"><div class="panel-body"><div class="toolbar"><input class="search" id="formulaSearch" placeholder="Pesquisar fórmula..."><span class="spacer"></span><button class="btn primary" id="newFromLibraryBtn">+ Nova fórmula</button></div></div></div>
+    <div id="formulaLibrary" class="library"></div>
   </section>
 
   <section id="mpsView" class="view">
-    <div class="panel" style="margin-bottom:16px">
-      <div class="panel-body" style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
-        <div class="toolbar">
-          <input class="search" id="mpSearch" placeholder="Pesquisar MP, abreviação ou tipo...">
-          <select id="mpProfileFilter"><option value="">Todos os perfis</option></select>
-        </div>
-        <div class="toolbar">
-          <button class="btn" id="exportBackupBtn">Backup JSON</button>
-          <button class="btn" id="importBackupBtn">Importar backup</button>
-          <input type="file" id="backupFile" accept=".json" style="display:none">
-          <button class="btn primary" id="newMpBtn">+ Nova MP</button>
-        </div>
-      </div>
-    </div>
+    <div class="panel"><div class="panel-body"><div class="toolbar"><input class="search" id="mpSearch" placeholder="Pesquisar MP, abreviação..."><select id="mpProfileFilter"><option value="">Todos os perfis</option></select><span class="spacer"></span><button class="btn primary" id="newMpBtn">+ Nova MP</button></div></div></div>
     <div id="mpCards" class="mp-cards"></div>
   </section>
-
-  <div class="footer-note">Dados salvos localmente no navegador deste dispositivo.</div>
 </div>
 
-<div class="modal-backdrop" id="mpModal">
-  <div class="modal">
-    <div class="modal-head"><h2 id="mpModalTitle">Nova matéria-prima</h2><button class="btn ghost" data-close="mpModal">✕</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="mpEditId">
-      <div class="modal-grid">
-        <label class="field" style="grid-column:span 2">Nome<input id="mpName"></label>
-        <label class="field">Abreviação<input id="mpAbbr"></label>
-        <label class="field">Tipo<select id="mpType"><option>Fertilizante</option><option>Micronutriente</option><option>Aditivo</option><option>Antiempedrante</option><option>Enchimento</option><option>Outro</option></select></label>
-        <label class="field">Valor por tonelada<input id="mpPrice" type="number" step="0.01" min="0"></label>
-        <label class="field">Moeda<select id="mpCurrency"><option>BRL</option><option>USD</option></select></label>
-        <label class="field" style="grid-column:span 2">Observação<input id="mpNote" placeholder="Fornecedor, especificação, data de preço..."></label>
-      </div>
-      <div class="section-title">Perfis compatíveis</div>
-      <div class="profile-checks" id="mpProfileChecks"></div>
-      <div class="section-title">Garantias (%)</div>
-      <div class="guar-grid" id="mpGuaranteeInputs"></div>
-      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px">
-        <button class="btn" data-close="mpModal">Cancelar</button>
-        <button class="btn primary" id="saveMpBtn">Salvar MP</button>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="modal-wrap" id="rowModal"><div class="modal"><div class="modal-head"><h2 id="rowModalTitle">Adicionar matéria-prima</h2><button class="btn ghost" data-close="rowModal">✕</button></div><div class="modal-body">
+  <input type="hidden" id="rowEditId">
+  <div class="grid g2"><label class="field">Matéria-prima<select id="rowMpSelect"></select></label><label class="field">Quantidade (kg)<input id="rowKg" type="number" min="0" step="0.01"></label></div>
+  <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn small" id="createMpInsideBtn">+ Cadastrar nova MP</button></div>
+  <div id="rowPreview" style="margin-top:12px"></div>
+  <div class="modal-actions"><button class="btn" data-close="rowModal">Cancelar</button><button class="btn primary" id="confirmRowBtn">Adicionar</button></div>
+</div></div></div>
 
-<div class="modal-backdrop" id="profilesModal">
-  <div class="modal" style="width:min(620px,100%)">
-    <div class="modal-head"><h2>Gerenciar perfis</h2><button class="btn ghost" data-close="profilesModal">✕</button></div>
-    <div class="modal-body">
-      <div style="display:flex;gap:8px">
-        <input id="newProfileName" placeholder="Novo perfil, ex.: Foliar">
-        <button class="btn primary" id="addProfileBtn">Adicionar</button>
-      </div>
-      <div id="profilesList" style="margin-top:14px"></div>
-      <p class="hint">Solúvel e Granulado começam como perfis padrão, mas você pode criar outros. Uma MP pode pertencer a vários perfis.</p>
-    </div>
-  </div>
-</div>
+<div class="modal-wrap" id="mpModal"><div class="modal"><div class="modal-head"><h2 id="mpModalTitle">Nova matéria-prima</h2><button class="btn ghost" data-close="mpModal">✕</button></div><div class="modal-body">
+  <input type="hidden" id="mpEditId">
+  <div class="grid g4"><label class="field" style="grid-column:span 2">Nome<input id="mpName"></label><label class="field">Abreviação<input id="mpAbbr"></label><label class="field">Tipo<select id="mpType"><option>Fertilizante</option><option>Micronutriente</option><option>Aditivo</option><option>Antiempedrante</option><option>Enchimento</option><option>Outro</option></select></label><label class="field">Preço / t<input id="mpPrice" type="number" min="0" step="0.01"></label><label class="field">Moeda<select id="mpCurrency"><option>BRL</option><option>USD</option></select></label><label class="field">Mín. automático (kg)<input id="mpMinKg" type="number" min="0" step="0.1"></label><label class="field">Máx. automático (kg)<input id="mpMaxKg" type="number" min="0" step="0.1" placeholder="vazio = lote"></label></div>
+  <div class="section-label">Perfis compatíveis</div><div id="mpProfiles" class="toolbar"></div>
+  <div class="section-label">Garantias (%)</div><div id="mpGuarantees" class="guar-grid"></div>
+  <div class="section-label">Observação</div><textarea id="mpNote" rows="2" placeholder="Fornecedor, especificação, hidratação, concentração comercial..."></textarea>
+  <div id="nWarning" class="hint" style="margin-top:8px"></div>
+  <div class="modal-actions"><button class="btn" data-close="mpModal">Cancelar</button><button class="btn primary" id="saveMpBtn">Salvar MP</button></div>
+</div></div></div>
+
+<div class="modal-wrap" id="candidateModal"><div class="modal"><div class="modal-head"><h2>Matérias-primas candidatas</h2><button class="btn ghost" data-close="candidateModal">✕</button></div><div class="modal-body"><p class="hint">Desmarque MPs que não podem ser usadas. Os limites são rígidos no cálculo automático.</p><div id="candidateList" class="check-list"></div><div class="modal-actions"><button class="btn primary" data-close="candidateModal">Concluir</button></div></div></div></div>
+
+<div class="modal-wrap" id="saveModal"><div class="modal" style="width:min(520px,100%)"><div class="modal-head"><h2>Salvar fórmula</h2><button class="btn ghost" data-close="saveModal">✕</button></div><div class="modal-body"><label class="field">Nome da fórmula<input id="saveName"></label><label class="field" style="margin-top:9px">Observação<textarea id="saveNote" rows="3"></textarea></label><div class="modal-actions"><button class="btn" data-close="saveModal">Cancelar</button><button class="btn primary" id="confirmSaveBtn">Salvar</button></div></div></div></div>
+
+<div class="modal-wrap" id="backupModal"><div class="modal" style="width:min(600px,100%)"><div class="modal-head"><h2>Backups</h2><button class="btn ghost" data-close="backupModal">✕</button></div><div class="modal-body"><p class="hint">O backup inclui matérias-primas, fórmulas salvas, metas e configurações.</p><div class="toolbar"><button class="btn primary" id="exportBackupBtn">Exportar backup</button><button class="btn" id="importBackupBtn">Importar backup</button><input type="file" id="backupFile" accept="application/json,.json" class="hidden"></div></div></div></div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'fertcalc_v2';
-const APP_ICON = 'icon-512.png';
-
-const nutrients = [
-  {key:'nTotal', label:'N Total', decimals:1},
-  {key:'nNitric', label:'N Nítrico', decimals:4},
-  {key:'nAmmoniacal', label:'N Amoniacal', decimals:4},
-  {key:'nAmidic', label:'N Amídico', decimals:4},
-  {key:'p', label:'P₂O₅', decimals:1},
-  {key:'k', label:'K₂O', decimals:1},
-  {key:'ca', label:'Ca', decimals:2},
-  {key:'s', label:'S', decimals:2},
-  {key:'mg', label:'Mg', decimals:2},
-  {key:'b', label:'B', decimals:4},
-  {key:'fe', label:'Fe', decimals:4},
-  {key:'zn', label:'Zn', decimals:4},
-  {key:'mn', label:'Mn', decimals:4},
-  {key:'cu', label:'Cu', decimals:4},
-  {key:'mo', label:'Mo', decimals:4},
+'use strict';
+const STORAGE_KEY='fertcalc_v3';
+const nutrientDefs=[
+ {key:'nTotal',label:'N Total',decl:0},{key:'nNitric',label:'N Nítrico',decl:2},{key:'nAmmoniacal',label:'N Amoniacal',decl:2},{key:'nAmidic',label:'N Amídico',decl:2},
+ {key:'p',label:'P₂O₅',decl:0},{key:'k',label:'K₂O',decl:0},{key:'ca',label:'Ca',decl:1},{key:'mg',label:'Mg',decl:1},{key:'s',label:'S',decl:1},
+ {key:'b',label:'B',decl:2},{key:'fe',label:'Fe',decl:2},{key:'zn',label:'Zn',decl:2},{key:'mn',label:'Mn',decl:2},{key:'cu',label:'Cu',decl:2},{key:'mo',label:'Mo',decl:3}
 ];
+const primaryKeys=['nTotal','p','k','ca','mg','s','b','fe','zn','mn','cu','mo'];
+const colors=['#22b86b','#4c8cff','#f0a23b','#8a68d8','#d56868','#42a6a6','#9d7a40','#dd6f9c','#6a8e3e','#4f7a91'];
+const blank=()=>Object.fromEntries(nutrientDefs.map(n=>[n.key,0]));
+const deep=o=>JSON.parse(JSON.stringify(o));
+const uid=()=>crypto?.randomUUID?.() || ('id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));
+const num=v=>Number.isFinite(+v)?+v:0;
+const fmt=(v,d=2)=>num(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const money=(v,c='BRL')=>num(v).toLocaleString('pt-BR',{style:'currency',currency:c,minimumFractionDigits:2,maximumFractionDigits:2});
+const trunc=(v,d)=>Math.floor((num(v)+1e-12)*10**d)/10**d;
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
-function blankGuarantees(){ return Object.fromEntries(nutrients.map(n => [n.key, 0])); }
-function defaultState(){
-  return {
-    profiles:['Solúvel','Granulado'],
-    mps:[],
-    formula:{
-      name:'Nova formulação',
-      profile:'Solúvel',
-      batchKg:1000,
-      baseCurrency:'BRL',
-      fxUsdBrl:5.50,
-      rows:[],
-      goals:blankGuarantees(),
-      regulatory:blankGuarantees(),
-      extraCosts:[]
-    },
-    saved:[]
-  };
-}
-let state = loadState();
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    const base = defaultState();
-    return {...base,...parsed,formula:{...base.formula,...parsed.formula},profiles:Array.isArray(parsed.profiles)&&parsed.profiles.length?parsed.profiles:base.profiles,mps:Array.isArray(parsed.mps)?parsed.mps:[],saved:Array.isArray(parsed.saved)?parsed.saved:[]};
-  }catch(e){ return defaultState(); }
-}
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  const el = document.getElementById('autosaveText');
-  if(el){
-    el.textContent='Salvo agora';
-    clearTimeout(saveState._t);
-    saveState._t=setTimeout(()=>el.textContent='Salvo automaticamente',900);
-  }
-}
-function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
-function num(v){ const n=parseFloat(v); return Number.isFinite(n)?n:0; }
-function trunc(v,d){ const f=10**d; return Math.floor((num(v)+Number.EPSILON)*f)/f; }
-function fmt(v,d=2){ return num(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-function currency(v,c){ return num(v).toLocaleString('pt-BR',{style:'currency',currency:c,minimumFractionDigits:2,maximumFractionDigits:2}); }
-function deepCopy(o){ return JSON.parse(JSON.stringify(o)); }
-function convertToBase(value, from){
-  const base = state.formula.baseCurrency;
-  const fx = num(state.formula.fxUsdBrl)||1;
-  if(from===base) return value;
-  if(from==='USD' && base==='BRL') return value*fx;
-  if(from==='BRL' && base==='USD') return value/fx;
-  return value;
-}
-function calculatedGuarantees(){
-  const out=blankGuarantees();
-  const batch=num(state.formula.batchKg)||1;
-  state.formula.rows.forEach(row=>{
-    const mp=state.mps.find(m=>m.id===row.mpId);
-    if(!mp) return;
-    const kg=num(row.kg);
-    nutrients.forEach(n=>{ out[n.key]+=kg*num(mp.guarantees?.[n.key])/batch; });
-  });
-  return out;
-}
-function getKNRatio(calc){
-  const n=num(calc.nTotal);
-  const k=num(calc.k);
-  return n>0 ? k/n : 0;
-}
-function costData(){
-  const batch=num(state.formula.batchKg)||1;
-  let rawBatch=0;
-  state.formula.rows.forEach(row=>{
-    const mp=state.mps.find(m=>m.id===row.mpId);
-    if(!mp) return;
-    rawBatch += num(row.kg)/1000 * convertToBase(num(mp.priceTon), mp.currency||'BRL');
-  });
-  let subtotal=rawBatch;
-  const details=[];
-  state.formula.extraCosts.forEach(c=>{
-    let add=0;
-    if(c.type==='perTon') add=num(c.value)*(batch/1000);
-    else if(c.type==='fixedBatch') add=num(c.value);
-    else if(c.type==='percent') add=subtotal*(num(c.value)/100);
-    subtotal+=add;
-    details.push({...c,batchValue:add});
-  });
-  return {rawBatch,rawPerTon:rawBatch/batch*1000,finalBatch:subtotal,finalPerTon:subtotal/batch*1000,extraPerTon:(subtotal-rawBatch)/batch*1000,details};
-}
+function defaultFormula(){return {id:uid(),name:'Nova formulação',note:'',profile:'Solúvel',batchKg:1000,baseCurrency:'BRL',fx:5.5,rows:[],goals:blank(),regulatory:blank(),extraCosts:[],autoCandidates:{},createdAt:Date.now(),updatedAt:Date.now()}}
+function defaultState(){return {version:3,profiles:['Solúvel','Granulado'],mps:[],formulas:[],current:defaultFormula(),lastView:'formula'}}
 
-function render(){ renderProfiles(); renderFormulaHeader(); renderFormulaRows(); renderGuarantees(); renderNitrogen(); renderCosts(); renderMpCards(); renderSaved(); }
-function renderProfiles(){
-  const profileSel=document.getElementById('formulaProfile');
-  profileSel.innerHTML=state.profiles.map(p=>`<option ${p===state.formula.profile?'selected':''}>${escapeHtml(p)}</option>`).join('');
-  const filter=document.getElementById('mpProfileFilter');
-  const current=filter.value;
-  filter.innerHTML='<option value="">Todos os perfis</option>'+state.profiles.map(p=>`<option>${escapeHtml(p)}</option>`).join('');
-  filter.value=current;
-  document.getElementById('mpProfileChecks').innerHTML=state.profiles.map(p=>`
-    <label class="checkpill"><input type="checkbox" value="${escapeAttr(p)}"> ${escapeHtml(p)}</label>
-  `).join('');
-  document.getElementById('profilesList').innerHTML=state.profiles.map((p,i)=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)">
-      <b>${escapeHtml(p)}</b>
-      <button class="btn danger" onclick="removeProfile(${i})">Excluir</button>
-    </div>
-  `).join('');
+var state;
+function normalizeGuarantees(g={}){const o=blank(); nutrientDefs.forEach(n=>o[n.key]=num(g[n.key])); const forms=o.nNitric+o.nAmmoniacal+o.nAmidic;if(o.nTotal<=0 && forms>0)o.nTotal=forms;return o}
+function normalizeMp(mp){return {id:mp.id||uid(),name:mp.name||'Matéria-prima',abbr:mp.abbr||'',type:mp.type||'Fertilizante',profiles:Array.isArray(mp.profiles)&&mp.profiles.length?mp.profiles:['Solúvel'],priceTon:num(mp.priceTon??mp.price),currency:mp.currency||'BRL',minKg:num(mp.minKg),maxKg:mp.maxKg===''||mp.maxKg==null?null:num(mp.maxKg),note:mp.note||'',guarantees:normalizeGuarantees(mp.guarantees||mp),createdAt:mp.createdAt||Date.now(),updatedAt:Date.now()}}
+function normalizeFormula(f){const base=defaultFormula();const out={...base,...deep(f||{})};out.id=out.id||uid();out.goals={...blank(),...(out.goals||{})};out.regulatory={...blank(),...(out.regulatory||{})};out.rows=(out.rows||[]).map(r=>{const lib=state?.mps?.find?.(m=>m.id===r.mpId);return {id:r.id||uid(),mpId:r.mpId||lib?.id||'',kg:num(r.kg),snapshot:normalizeMp(r.snapshot||lib||{id:r.mpId,name:'MP não encontrada'})}});return out}
+function migrateLegacy(){
+  const candidates=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||'';if(/fert(calc|ilab)/i.test(k)&&k!==STORAGE_KEY)candidates.push(k)}
+  for(const key of ['fertilab_v1',...candidates]){try{const raw=localStorage.getItem(key);if(!raw)continue;const x=JSON.parse(raw);if(!x||!Array.isArray(x.mps))continue;const st=defaultState();st.profiles=Array.isArray(x.profiles)&&x.profiles.length?x.profiles:st.profiles;st.mps=x.mps.map(normalizeMp);if(x.formula){const f={...x.formula,id:uid(),regulatory:x.formula.regulatory||x.regulatoryRules||blank()};f.rows=(x.formula.rows||[]).map(r=>({id:uid(),mpId:r.mpId,kg:num(r.kg),snapshot:deep(st.mps.find(m=>m.id===r.mpId)||{})}));st.current=normalizeFormula(f)}if(Array.isArray(x.saved)){st.formulas=x.saved.map((s,i)=>normalizeFormula({...s,id:uid(),name:s.name||`Versão ${i+1}`}))}return st}catch(e){}}
+  return null
 }
-function renderFormulaHeader(){
-  document.getElementById('formulaName').value=state.formula.name;
-  document.getElementById('batchKg').value=state.formula.batchKg;
-  document.getElementById('baseCurrency').value=state.formula.baseCurrency;
-  document.getElementById('fxUsdBrl').value=state.formula.fxUsdBrl;
-}
-function compatibleMps(){ return state.mps.filter(mp => (mp.profiles||[]).includes(state.formula.profile)); }
-function renderFormulaRows(){
-  const tbody=document.getElementById('formulaRows');
-  const mobile=document.getElementById('formulaRowsMobile');
-  const compatible=compatibleMps();
-  if(!state.formula.rows.length){
-    tbody.innerHTML=`<tr><td colspan="6" class="empty">Nenhuma MP adicionada. Clique em <b>+ MP</b>.</td></tr>`;
-    mobile.innerHTML=`<div class="empty">Nenhuma MP adicionada. Clique em <b>+ MP</b>.</div>`;
-  } else {
-    tbody.innerHTML=state.formula.rows.map((row,i)=>{
-      const mp=state.mps.find(m=>m.id===row.mpId);
-      const options=compatible.map(m=>`<option value="${m.id}" ${m.id===row.mpId?'selected':''}>${escapeHtml(m.abbr?`${m.abbr} — ${m.name}`:m.name)}</option>`).join('');
-      const batch=num(state.formula.batchKg)||1; const kg=num(row.kg); const price = mp ? convertToBase(num(mp.priceTon),mp.currency||'BRL') : 0; const c=kg/1000*price;
-      return `<tr>
-        <td><select class="mp-select" onchange="setRowMp(${i},this.value)"><option value="">Selecione...</option>${options}</select></td>
-        <td class="num"><input class="kg-input" type="number" step="0.01" min="0" value="${kg}" onchange="setRowKg(${i},this.value)" oninput="setRowKg(${i},this.value,true)"></td>
-        <td class="num">${fmt(kg/batch*100,2)}%</td>
-        <td class="num">${mp?currency(price,state.formula.baseCurrency):'—'}</td>
-        <td class="num"><b>${mp?currency(c,state.formula.baseCurrency):'—'}</b></td>
-        <td><button class="icon-btn" onclick="removeRow(${i})">✕</button></td>
-      </tr>`;
-    }).join('');
-    mobile.innerHTML=state.formula.rows.map((row,i)=>{
-      const mp=state.mps.find(m=>m.id===row.mpId);
-      const options=compatible.map(m=>`<option value="${m.id}" ${m.id===row.mpId?'selected':''}>${escapeHtml(m.abbr?`${m.abbr} — ${m.name}`:m.name)}</option>`).join('');
-      const batch=num(state.formula.batchKg)||1; const kg=num(row.kg); const price = mp ? convertToBase(num(mp.priceTon),mp.currency||'BRL') : 0; const c=kg/1000*price;
-      return `<div class="mobile-card">
-        <label class="field">Matéria-prima<select onchange="setRowMp(${i},this.value)"><option value="">Selecione...</option>${options}</select></label>
-        <div class="row">
-          <label class="field"><span>kg</span><input type="number" step="0.01" min="0" value="${kg}" onchange="setRowKg(${i},this.value)" oninput="setRowKg(${i},this.value,true)"></label>
-          <div class="cell"><small>% da fórmula</small><b>${fmt(kg/batch*100,2)}%</b></div>
-        </div>
-        <div class="row">
-          <div class="cell"><small>Preço / t</small><b>${mp?currency(price,state.formula.baseCurrency):'—'}</b></div>
-          <div class="cell"><small>Custo</small><b>${mp?currency(c,state.formula.baseCurrency):'—'}</b></div>
-        </div>
-        <div class="mobile-row-actions"><button class="btn danger" onclick="removeRow(${i})">Remover</button></div>
-      </div>`;
-    }).join('');
-  }
-  const total=state.formula.rows.reduce((s,r)=>s+num(r.kg),0); const batch=num(state.formula.batchKg)||1;
-  document.getElementById('batchTotal').textContent=`${fmt(total,2)} / ${fmt(batch,0)} kg`;
-  const pct=Math.min(total/batch*100,100); document.getElementById('batchProgress').style.width=`${pct}%`;
-  const diff=total-batch; const stat=document.getElementById('batchStatus');
-  if(Math.abs(diff)<0.0001){stat.textContent='Lote fechado';stat.style.color='var(--ok)'}
-  else if(diff<0){stat.textContent=`Faltam ${fmt(Math.abs(diff),2)} kg`;stat.style.color='var(--warn)'}
-  else{stat.textContent=`Excede ${fmt(diff,2)} kg`;stat.style.color='var(--bad)'}
-}
-function renderGuarantees(){
-  const calc=calculatedGuarantees();
-  const tbody=document.getElementById('guaranteeRows');
-  const mobile=document.getElementById('guaranteeCards');
-  const rows=nutrients.map(n=>{
-    const declared=trunc(calc[n.key],n.decimals); const goal=num(state.formula.goals[n.key]); const reg=num(state.formula.regulatory[n.key]);
-    let status='ok', label='Atendido';
-    if(reg>0 && declared<reg){status='bad';label='Abaixo do mínimo'} else if(goal>0 && declared<goal){status='warn';label='Abaixo da meta'}
-    return {n,declared,goal,reg,status,label,calcVal:calc[n.key]};
-  });
-  tbody.innerHTML=rows.map(r=>`<tr>
-      <td><b>${r.n.label}</b></td>
-      <td class="num"><input type="number" step="${1/(10**r.n.decimals)}" value="${state.formula.goals[r.n.key]||''}" placeholder="0" onchange="setGoal('${r.n.key}',this.value)"></td>
-      <td class="num">${fmt(r.calcVal,Math.max(r.n.decimals,4))}</td>
-      <td class="num"><b>${fmt(r.declared,r.n.decimals)}</b></td>
-      <td class="num"><input type="number" step="${1/(10**r.n.decimals)}" value="${state.formula.regulatory[r.n.key]||''}" placeholder="0" onchange="setReg('${r.n.key}',this.value)"></td>
-      <td><span class="status-dot ${r.status}"><span class="dot"></span>${r.label}</span></td>
-    </tr>`).join('');
-  mobile.innerHTML=rows.map(r=>`<div class="mobile-card">
-    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><b>${r.n.label}</b><span class="status-dot ${r.status}"><span class="dot"></span>${r.label}</span></div>
-    <div class="row">
-      <label class="field"><span>Desejado</span><input type="number" step="${1/(10**r.n.decimals)}" value="${state.formula.goals[r.n.key]||''}" placeholder="0" onchange="setGoal('${r.n.key}',this.value)"></label>
-      <label class="field"><span>Mín. regulatório</span><input type="number" step="${1/(10**r.n.decimals)}" value="${state.formula.regulatory[r.n.key]||''}" placeholder="0" onchange="setReg('${r.n.key}',this.value)"></label>
-    </div>
-    <div class="row">
-      <div class="cell"><small>Calculado</small><b>${fmt(r.calcVal,Math.max(r.n.decimals,4))}</b></div>
-      <div class="cell"><small>Declarado</small><b>${fmt(r.declared,r.n.decimals)}</b></div>
-    </div>
-  </div>`).join('');
-  document.getElementById('heroN').textContent=fmt(trunc(calc.nTotal,1),1);
-  document.getElementById('heroP').textContent=fmt(trunc(calc.p,1),1);
-  document.getElementById('heroK').textContent=fmt(trunc(calc.k,1),1);
-  document.getElementById('heroKN').textContent=calc.nTotal>0 ? fmt(getKNRatio(calc),2) : '—';
-}
-function renderNitrogen(){
-  const c=calculatedGuarantees(); const total=num(c.nTotal); const nitric=total?c.nNitric/total*100:0; const ammon=total?c.nAmmoniacal/total*100:0; const amidic=total?c.nAmidic/total*100:0;
-  document.getElementById('pctNitric').textContent=fmt(nitric,1)+'%'; document.getElementById('pctAmmoniacal').textContent=fmt(ammon,1)+'%'; document.getElementById('pctAmidic').textContent=fmt(amidic,1)+'%';
-  document.getElementById('nbarNitric').style.width=nitric+'%'; document.getElementById('nbarAmmoniacal').style.width=ammon+'%'; document.getElementById('nbarAmidic').style.width=amidic+'%';
-  const sum=c.nNitric+c.nAmmoniacal+c.nAmidic; const diff=total-sum;
-  document.getElementById('nBalanceHint').textContent= total?`N total: ${fmt(total,4)}%. Soma das formas cadastradas: ${fmt(sum,4)}%. Diferença: ${fmt(diff,4)}%.`:'Cadastre as formas de N nas matérias-primas para visualizar a distribuição.';
-  document.getElementById('nkHint').textContent = total?`Relação K/N (K₂O ÷ N total): ${fmt(getKNRatio(c),2)}.`:'Relação K/N disponível quando houver N total na fórmula.';
-}
-function renderCosts(){
-  const c=costData();
-  document.getElementById('rawCostPerTon').textContent=currency(c.rawPerTon,state.formula.baseCurrency);
-  document.getElementById('extraCostPerTon').textContent=currency(c.extraPerTon,state.formula.baseCurrency);
-  document.getElementById('finalCostPerTon').textContent=currency(c.finalPerTon,state.formula.baseCurrency);
-  document.getElementById('extraCosts').innerHTML=state.formula.extraCosts.map((x,i)=>`
-    <div class="extra-row">
-      <input value="${escapeAttr(x.name)}" placeholder="Nome" onchange="setExtra(${i},'name',this.value)">
-      <select onchange="setExtra(${i},'type',this.value)">
-        <option value="perTon" ${x.type==='perTon'?'selected':''}>Valor / t</option>
-        <option value="fixedBatch" ${x.type==='fixedBatch'?'selected':''}>Fixo / lote</option>
-        <option value="percent" ${x.type==='percent'?'selected':''}>Percentual</option>
-      </select>
-      <input type="number" step="0.01" value="${x.value}" onchange="setExtra(${i},'value',this.value)">
-      <button class="icon-btn remove-extra" onclick="removeExtra(${i})">✕</button>
-    </div>`).join('');
-}
-function renderMpCards(){
-  const box=document.getElementById('mpCards'); const q=(document.getElementById('mpSearch').value||'').toLowerCase().trim(); const prof=document.getElementById('mpProfileFilter').value;
-  const list=state.mps.filter(m=>{ const hay=[m.name,m.abbr,m.type,m.note].join(' ').toLowerCase(); return (!q||hay.includes(q)) && (!prof||(m.profiles||[]).includes(prof)); });
-  if(!list.length){ box.innerHTML=`<div class="panel empty" style="grid-column:1/-1">Nenhuma matéria-prima cadastrada para este filtro.</div>`; return; }
-  box.innerHTML=list.map(mp=>{ const nonzero=nutrients.filter(n=>num(mp.guarantees?.[n.key])>0).slice(0,6);
-    return `<div class="mp-card">
-      <div class="mp-card-top">
-        <div><h3>${escapeHtml(mp.name)}</h3><div class="hint">${escapeHtml(mp.abbr||'Sem abreviação')} · ${escapeHtml(mp.type||'')}</div></div>
-        <div><button class="icon-btn" onclick="editMp('${mp.id}')">✎</button><button class="icon-btn" onclick="deleteMp('${mp.id}')">✕</button></div>
-      </div>
-      <div class="badges">${(mp.profiles||[]).map(p=>`<span class="badge">${escapeHtml(p)}</span>`).join('')}</div>
-      <div class="mp-meta">
-        <div><small>Preço / t</small><b>${currency(mp.priceTon||0,mp.currency||'BRL')}</b></div>
-        <div><small>Garantias</small><b>${nonzero.length?nonzero.map(n=>`${n.label} ${fmt(mp.guarantees[n.key],2)}`).join(' · '):'Não cadastradas'}</b></div>
-      </div>
-      ${mp.note?`<p class="hint" style="margin-bottom:0">${escapeHtml(mp.note)}</p>`:''}
-    </div>`; }).join('');
-}
-function renderSaved(){ const sel=document.getElementById('savedSelect'); const current=sel.value; sel.innerHTML='<option value="">Selecione...</option>'+state.saved.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — ${new Date(s.savedAt).toLocaleString('pt-BR')}</option>`).join(''); if(state.saved.some(s=>s.id===current)) sel.value=current; }
+state=(function(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const x=JSON.parse(raw);const st={...defaultState(),...x};st.mps=(x.mps||[]).map(normalizeMp);st.current=normalizeFormula(x.current||x.formula);st.formulas=(x.formulas||[]).map(normalizeFormula);return st}}catch(e){}return migrateLegacy()||defaultState()})();
+function persist(){state.current.updatedAt=Date.now();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));const a=document.getElementById('autosave');if(a){a.textContent='Salvo agora';clearTimeout(persist.t);persist.t=setTimeout(()=>a.textContent='Salvo localmente',800)}}
+function getRowMp(row){return normalizeMp(row.snapshot||state.mps.find(m=>m.id===row.mpId)||{})}
+function convertPrice(price,currency,form=state.current){const base=form.baseCurrency,fx=num(form.fx)||1;if(currency===base)return num(price);if(currency==='USD'&&base==='BRL')return num(price)*fx;if(currency==='BRL'&&base==='USD')return num(price)/fx;return num(price)}
+function calcGuarantees(form=state.current){const out=blank(),batch=num(form.batchKg)||1;(form.rows||[]).forEach(r=>{const mp=getRowMp(r),kg=num(r.kg);nutrientDefs.forEach(n=>out[n.key]+=kg*num(mp.guarantees[n.key])/batch)});if(out.nTotal<=0)out.nTotal=out.nNitric+out.nAmmoniacal+out.nAmidic;return out}
+function costInfo(form=state.current){const batch=num(form.batchKg)||1;let raw=0;const lines=(form.rows||[]).map(r=>{const mp=getRowMp(r),price=convertPrice(mp.priceTon,mp.currency,form),cost=num(r.kg)/1000*price;raw+=cost;return {row:r,mp,price,cost}});let total=raw;for(const c of form.extraCosts||[]){if(c.type==='percent')total*=1+num(c.value)/100;else if(c.type==='perTon')total+=num(c.value)*batch/1000;else total+=num(c.value)}return {rawBatch:raw,totalBatch:total,rawPerTon:raw/batch*1000,totalPerTon:total/batch*1000,extraPerTon:(total-raw)/batch*1000,lines}}
+function contribution(row,form=state.current){const mp=getRowMp(row),batch=num(form.batchKg)||1,o={};nutrientDefs.forEach(n=>{const kg=num(row.kg)*num(mp.guarantees[n.key])/100;o[n.key]={kg,pp:kg/batch*100}});return o}
+function declared(calc,key){const d=nutrientDefs.find(n=>n.key===key)?.decl??2;return trunc(calc[key],d)}
 
-function setRowMp(i,v){state.formula.rows[i].mpId=v;saveState();render()}
-function setRowKg(i,v,soft=false){state.formula.rows[i].kg=num(v);if(!soft)saveState();renderFormulaRows();renderGuarantees();renderNitrogen();renderCosts();if(soft){clearTimeout(setRowKg.t);setRowKg.t=setTimeout(saveState,350)}}
-function removeRow(i){state.formula.rows.splice(i,1);saveState();render()}
-function setGoal(k,v){state.formula.goals[k]=num(v);saveState();renderGuarantees()}
-function setReg(k,v){state.formula.regulatory[k]=num(v);saveState();renderGuarantees()}
-function setExtra(i,k,v){state.formula.extraCosts[i][k]=k==='value'?num(v):v;saveState();renderCosts()}
-function removeExtra(i){state.formula.extraCosts.splice(i,1);saveState();renderCosts()}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),1800)}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.addEventListener('click',e=>{const c=e.target.closest('[data-close]');if(c)closeModal(c.dataset.close);if(e.target.classList.contains('modal-wrap'))e.target.classList.remove('open')})
 
-document.getElementById('addFormulaRow').onclick=()=>{ const comp=compatibleMps(); state.formula.rows.push({mpId:comp[0]?.id||'',kg:0}); saveState();render(); };
-document.getElementById('addCostBtn').onclick=()=>{ state.formula.extraCosts.push({name:'Novo custo',type:'perTon',value:0}); saveState();renderCosts(); };
-['formulaName','batchKg','baseCurrency','fxUsdBrl'].forEach(id=>{ document.getElementById(id).addEventListener('change',e=>{ const map={formulaName:'name',batchKg:'batchKg',baseCurrency:'baseCurrency',fxUsdBrl:'fxUsdBrl'}; state.formula[map[id]]=id==='formulaName'||id==='baseCurrency'?e.target.value:num(e.target.value); saveState();render(); }); });
-document.getElementById('formulaProfile').addEventListener('change',e=>{ state.formula.profile=e.target.value; const allowed=new Set(compatibleMps().map(m=>m.id)); state.formula.rows=state.formula.rows.map(r=>allowed.has(r.mpId)?r:{...r,mpId:''}); saveState();render(); });
+function render(){renderHeader();renderFormulaRows();renderGuarantees();renderNitrogen();renderCosts();renderLibrary();renderMps();renderCandidates();persist()}
+function renderHeader(){const f=state.current;document.getElementById('formulaName').value=f.name;document.getElementById('batchKg').value=f.batchKg;document.getElementById('baseCurrency').value=f.baseCurrency;document.getElementById('fx').value=f.fx;document.getElementById('formulaProfile').innerHTML=state.profiles.map(p=>`<option ${p===f.profile?'selected':''}>${esc(p)}</option>`).join('');document.getElementById('mpProfileFilter').innerHTML='<option value="">Todos os perfis</option>'+state.profiles.map(p=>`<option>${esc(p)}</option>`).join('')}
+function renderFormulaRows(){const root=document.getElementById('formulaRows'),f=state.current,cost=costInfo(f),calc=calcGuarantees(f),batch=num(f.batchKg)||1;if(!f.rows.length){root.innerHTML='<div class="empty">Nenhuma matéria-prima adicionada. Toque em <b>+ MP</b>.</div>'}else{root.innerHTML=f.rows.map((r,i)=>{const mp=getRowMp(r),ci=cost.lines[i]||{cost:0,price:0},cp=cost.rawBatch?ci.cost/cost.rawBatch*100:0,con=contribution(r,f);const chips=primaryKeys.filter(k=>con[k].kg>0.00001).map(k=>{const n=nutrientDefs.find(x=>x.key===k),share=calc[k]>0?con[k].pp/calc[k]*100:0;return `<span class="chip">${n.label}: ${fmt(con[k].kg,2)} kg · ${fmt(con[k].pp,3)} p.p. · ${fmt(share,1)}%</span>`}).join('');const details=primaryKeys.filter(k=>con[k].kg>0.00001).map(k=>{const n=nutrientDefs.find(x=>x.key===k),share=calc[k]>0?con[k].pp/calc[k]*100:0;return `<div class="contrib"><b>${n.label}</b><span>${fmt(con[k].kg,3)} kg · ${fmt(con[k].pp,4)} p.p. da fórmula · ${fmt(share,2)}% do ${n.label} total</span></div>`}).join('');return `<div class="mp-row-card"><div class="mp-row-top"><div><div class="mp-title">${esc(mp.abbr?mp.abbr+' — ':'')}${esc(mp.name)}</div><div class="mp-sub">Garantias do snapshot desta fórmula</div></div><div class="row-actions"><button class="btn small" onclick="editFormulaRow('${r.id}')">Editar</button><button class="btn small danger" onclick="removeFormulaRow('${r.id}')">Remover</button></div></div><div class="mini-grid"><div class="mini"><small>kg</small><b>${fmt(r.kg,2)}</b></div><div class="mini"><small>% fórmula</small><b>${fmt(num(r.kg)/batch*100,2)}%</b></div><div class="mini"><small>Preço / t</small><b>${money(ci.price,f.baseCurrency)}</b></div><div class="mini"><small>Custo</small><b>${money(ci.cost,f.baseCurrency)}</b></div><div class="mini"><small>% do custo</small><b>${fmt(cp,2)}%</b></div></div><div class="nut-chips">${chips||'<span class="hint">Sem garantias nutricionais.</span>'}</div><details class="details"><summary>Destrinchar contribuição desta MP</summary><div class="contrib-list">${details||'<div class="hint">Nenhuma contribuição nutricional.</div>'}</div></details></div>`}).join('')}
+ const total=f.rows.reduce((s,r)=>s+num(r.kg),0),diff=total-batch,p=Math.min(100,total/batch*100);document.getElementById('batchTotal').textContent=`${fmt(total,2)} / ${fmt(batch,0)} kg`;document.getElementById('batchProgress').style.width=p+'%';const st=document.getElementById('batchStatus');if(Math.abs(diff)<.001){st.textContent='Lote fechado';st.style.color='var(--ok)'}else if(diff<0){st.textContent=`Faltam ${fmt(-diff,2)} kg`;st.style.color='var(--warn)'}else{st.textContent=`Excede ${fmt(diff,2)} kg`;st.style.color='var(--bad)'}}
+function renderGuarantees(){const f=state.current,c=calcGuarantees(f),tb=document.getElementById('guaranteeRows');tb.innerHTML=nutrientDefs.filter(n=>!['nNitric','nAmmoniacal','nAmidic'].includes(n.key)).map(n=>{const goal=num(f.goals[n.key]),reg=num(f.regulatory[n.key]),dec=declared(c,n.key);let cls='ok',label='Atendido';if(reg>0&&dec<reg){cls='bad';label='Abaixo do mínimo'}else if(goal>0&&c[n.key]+1e-9<goal){cls='warn';label='Abaixo do alvo'}return `<tr><td><b>${n.label}</b></td><td class="num"><input style="width:82px;text-align:right" type="number" step="0.001" value="${goal||''}" onchange="setGoal('${n.key}',this.value)"></td><td class="num">${fmt(c[n.key],4)}</td><td class="num"><b>${fmt(dec,n.decl)}</b></td><td class="num"><input style="width:82px;text-align:right" type="number" step="0.001" value="${reg||''}" onchange="setReg('${n.key}',this.value)"></td><td><span class="status ${cls}">${label}</span></td></tr>`}).join('');for(const [id,key] of [['heroN','nTotal'],['heroP','p'],['heroK','k']])document.getElementById(id).textContent=fmt(declared(c,key),nutrientDefs.find(n=>n.key===key).decl);document.getElementById('heroNCalc').textContent='calc. '+fmt(c.nTotal,4);document.getElementById('heroPCalc').textContent='calc. '+fmt(c.p,4);document.getElementById('heroKCalc').textContent='calc. '+fmt(c.k,4)}
+function renderNitrogen(){const c=calcGuarantees(),parts=[c.nNitric,c.nAmmoniacal,c.nAmidic],sum=parts.reduce((a,b)=>a+b,0)||c.nTotal||1,ids=['Nit','Amm','Ami'];parts.forEach((v,i)=>{const pct=v/sum*100;document.getElementById('bar'+ids[i]).style.width=pct+'%';document.getElementById('pct'+ids[i]).textContent=fmt(pct,1)+'%';document.getElementById('pp'+ids[i]).textContent=fmt(v,3)+' p.p.'})}
+function renderCosts(){const c=costInfo();document.getElementById('rawCost').textContent=money(c.rawPerTon,state.current.baseCurrency);document.getElementById('extraCost').textContent=money(c.extraPerTon,state.current.baseCurrency);document.getElementById('totalCost').textContent=money(c.totalPerTon,state.current.baseCurrency)}
+function renderLibrary(){const q=(document.getElementById('formulaSearch')?.value||'').toLowerCase(),root=document.getElementById('formulaLibrary');const list=state.formulas.filter(f=>(f.name+' '+(f.note||'')).toLowerCase().includes(q));if(!list.length){root.innerHTML='<div class="panel"><div class="empty">Nenhuma fórmula salva.</div></div>';return}root.innerHTML=list.sort((a,b)=>b.updatedAt-a.updatedAt).map(f=>{const c=calcGuarantees(f),cost=costInfo(f);return `<div class="formula-card"><h3>${esc(f.name)}</h3><p>${esc(f.note||'Sem observação')} · ${new Date(f.updatedAt||f.createdAt).toLocaleDateString('pt-BR')}</p><div class="fc-metrics"><div>N<b>${fmt(declared(c,'nTotal'),0)}</b></div><div>P₂O₅<b>${fmt(declared(c,'p'),0)}</b></div><div>K₂O<b>${fmt(declared(c,'k'),0)}</b></div><div>Custo/t<b>${money(cost.totalPerTon,f.baseCurrency)}</b></div></div><div class="actions"><button class="btn small primary" onclick="loadFormula('${f.id}')">Abrir/editar</button><button class="btn small" onclick="duplicateFormula('${f.id}')">Duplicar</button><button class="btn small" onclick="shareSavedPdf('${f.id}')">PDF</button><button class="btn small danger" onclick="deleteFormula('${f.id}')">Excluir</button></div></div>`}).join('')}
+function renderMps(){const q=(document.getElementById('mpSearch')?.value||'').toLowerCase(),pf=document.getElementById('mpProfileFilter')?.value||'',root=document.getElementById('mpCards');const list=state.mps.filter(m=>(m.name+' '+m.abbr+' '+m.type).toLowerCase().includes(q)&&(!pf||(m.profiles||[]).includes(pf)));if(!list.length){root.innerHTML='<div class="panel"><div class="empty">Nenhuma matéria-prima cadastrada.</div></div>';return}root.innerHTML=list.map(mp=>{const gs=primaryKeys.filter(k=>num(mp.guarantees[k])>0).map(k=>`${nutrientDefs.find(n=>n.key===k).label} ${fmt(mp.guarantees[k],2)}`).join(' · ');return `<div class="mp-card"><div style="display:flex;justify-content:space-between;gap:8px"><div><h3>${esc(mp.name)}</h3><p>${esc(mp.abbr||'Sem abreviação')} · ${esc(mp.type)}</p></div><div><button class="btn small" onclick="editMp('${mp.id}')">✎</button><button class="btn small danger" onclick="deleteMp('${mp.id}')">✕</button></div></div><div>${(mp.profiles||[]).map(p=>`<span class="badge">${esc(p)}</span>`).join('')}</div><div class="mp-meta"><div><small>Preço / t</small><b>${money(mp.priceTon,mp.currency)}</b></div><div><small>Garantias</small><b>${esc(gs||'—')}</b></div></div></div>`}).join('')}
+function renderCandidates(){const root=document.getElementById('candidateList');if(!root)return;const f=state.current,compatible=state.mps.filter(m=>(m.profiles||[]).includes(f.profile));root.innerHTML=compatible.map(mp=>{const cfg=f.autoCandidates[mp.id]||{enabled:true,min:mp.minKg||0,max:mp.maxKg??f.batchKg};return `<div class="candidate"><input type="checkbox" ${cfg.enabled!==false?'checked':''} onchange="setCandidate('${mp.id}','enabled',this.checked)"><div><b>${esc(mp.abbr?mp.abbr+' — ':'')}${esc(mp.name)}</b><br><small>${esc(primaryKeys.filter(k=>mp.guarantees[k]>0).map(k=>nutrientDefs.find(n=>n.key===k).label+' '+fmt(mp.guarantees[k],2)).join(' · '))}</small></div><label class="field cand-min">Mín. kg<input type="number" min="0" step="0.1" value="${num(cfg.min)}" onchange="setCandidate('${mp.id}','min',this.value)"></label><label class="field cand-max">Máx. kg<input type="number" min="0" step="0.1" value="${cfg.max==null?'':num(cfg.max)}" placeholder="lote" onchange="setCandidate('${mp.id}','max',this.value)"></label></div>`}).join('')}
 
-document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>{ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.view').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab==='formula'?'formulaView':'mpsView').classList.add('active'); });
-document.getElementById('newMpBtn').onclick=()=>openMpModal();
-document.getElementById('mpSearch').oninput=renderMpCards;
-document.getElementById('mpProfileFilter').onchange=renderMpCards;
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>document.getElementById(b.dataset.close).classList.remove('open'));
+function setGoal(k,v){state.current.goals[k]=num(v);renderGuarantees();persist()}
+function setReg(k,v){state.current.regulatory[k]=num(v);renderGuarantees();persist()}
+function setCandidate(id,key,v){const c=state.current.autoCandidates[id]||{enabled:true,min:0,max:null};c[key]=key==='enabled'?!!v:(v===''?null:num(v));state.current.autoCandidates[id]=c;persist()}
 
-function buildGuaranteeInputs(values={}){ document.getElementById('mpGuaranteeInputs').innerHTML=nutrients.map(n=>`<label class="field">${n.label}<input data-g="${n.key}" type="number" step="0.0001" min="0" value="${values[n.key]??''}" placeholder="0"></label>`).join(''); }
-function openMpModal(mp=null){
-  document.getElementById('mpModalTitle').textContent=mp?'Editar matéria-prima':'Nova matéria-prima'; document.getElementById('mpEditId').value=mp?.id||''; document.getElementById('mpName').value=mp?.name||''; document.getElementById('mpAbbr').value=mp?.abbr||''; document.getElementById('mpType').value=mp?.type||'Fertilizante'; document.getElementById('mpPrice').value=mp?.priceTon??''; document.getElementById('mpCurrency').value=mp?.currency||'BRL'; document.getElementById('mpNote').value=mp?.note||''; buildGuaranteeInputs(mp?.guarantees||{}); renderProfiles(); document.querySelectorAll('#mpProfileChecks input').forEach(ch=>ch.checked=(mp?.profiles||[]).includes(ch.value)); document.getElementById('mpModal').classList.add('open');
-}
-document.getElementById('saveMpBtn').onclick=()=>{
-  const id=document.getElementById('mpEditId').value||uid(); const name=document.getElementById('mpName').value.trim(); if(!name){alert('Informe o nome da matéria-prima.');return}
-  const guarantees=blankGuarantees(); document.querySelectorAll('#mpGuaranteeInputs [data-g]').forEach(inp=>guarantees[inp.dataset.g]=num(inp.value));
-  const item={id,name,abbr:document.getElementById('mpAbbr').value.trim(),type:document.getElementById('mpType').value,priceTon:num(document.getElementById('mpPrice').value),currency:document.getElementById('mpCurrency').value,note:document.getElementById('mpNote').value.trim(),profiles:[...document.querySelectorAll('#mpProfileChecks input:checked')].map(x=>x.value),guarantees};
-  const ix=state.mps.findIndex(m=>m.id===id); if(ix>=0) state.mps[ix]=item; else state.mps.push(item); document.getElementById('mpModal').classList.remove('open'); saveState();render();
-};
-window.editMp=id=>openMpModal(state.mps.find(m=>m.id===id));
-window.deleteMp=id=>{ if(!confirm('Excluir esta matéria-prima?')) return; state.mps=state.mps.filter(m=>m.id!==id); state.formula.rows=state.formula.rows.filter(r=>r.mpId!==id); saveState();render(); };
+function openRowModal(row=null){const f=state.current,compatible=state.mps.filter(m=>(m.profiles||[]).includes(f.profile));document.getElementById('rowEditId').value=row?.id||'';document.getElementById('rowModalTitle').textContent=row?'Editar matéria-prima':'Adicionar matéria-prima';document.getElementById('confirmRowBtn').textContent=row?'Salvar':'Adicionar';document.getElementById('rowMpSelect').innerHTML='<option value="">Selecione...</option>'+compatible.map(m=>`<option value="${m.id}">${esc(m.abbr?m.abbr+' — '+m.name:m.name)}</option>`).join('');document.getElementById('rowMpSelect').value=row?.mpId||'';document.getElementById('rowKg').value=row?.kg||'';updateRowPreview();openModal('rowModal')}
+function updateRowPreview(){const id=document.getElementById('rowMpSelect').value,kg=num(document.getElementById('rowKg').value),mp=state.mps.find(m=>m.id===id),root=document.getElementById('rowPreview');if(!mp){root.innerHTML='<div class="hint">Selecione uma MP para ver custo e contribuição nutricional.</div>';return}const batch=num(state.current.batchKg)||1,price=convertPrice(mp.priceTon,mp.currency),cost=kg/1000*price;const chips=primaryKeys.filter(k=>mp.guarantees[k]>0).map(k=>{const nk=kg*mp.guarantees[k]/100,pp=nk/batch*100;return `<span class="chip">${nutrientDefs.find(n=>n.key===k).label}: ${fmt(nk,2)} kg · ${fmt(pp,3)} p.p.</span>`}).join('');root.innerHTML=`<div class="mp-row-card"><b>${esc(mp.name)}</b><div class="mini-grid"><div class="mini"><small>% fórmula</small><b>${fmt(kg/batch*100,2)}%</b></div><div class="mini"><small>Preço/t</small><b>${money(price,state.current.baseCurrency)}</b></div><div class="mini"><small>Custo</small><b>${money(cost,state.current.baseCurrency)}</b></div></div><div class="nut-chips">${chips}</div></div>`}
+function editFormulaRow(id){openRowModal(state.current.rows.find(r=>r.id===id))}
+function removeFormulaRow(id){state.current.rows=state.current.rows.filter(r=>r.id!==id);render()}
+function confirmRow(){const mpId=document.getElementById('rowMpSelect').value,kg=num(document.getElementById('rowKg').value),editId=document.getElementById('rowEditId').value,mp=state.mps.find(m=>m.id===mpId);if(!mp){toast('Selecione uma matéria-prima.');return}const obj={id:editId||uid(),mpId,kg,snapshot:deep(mp)};const idx=state.current.rows.findIndex(r=>r.id===editId);if(idx>=0)state.current.rows[idx]=obj;else state.current.rows.push(obj);closeModal('rowModal');render()}
 
-document.getElementById('manageProfilesBtn').onclick=()=>{renderProfiles();document.getElementById('profilesModal').classList.add('open')};
-document.getElementById('addProfileBtn').onclick=()=>{ const v=document.getElementById('newProfileName').value.trim(); if(!v||state.profiles.includes(v)) return; state.profiles.push(v);document.getElementById('newProfileName').value=''; saveState();render(); };
-window.removeProfile=i=>{ const p=state.profiles[i]; if(state.profiles.length<=1){alert('Mantenha ao menos um perfil.');return} if(!confirm(`Excluir o perfil "${p}"?`)) return; state.profiles.splice(i,1); state.mps.forEach(m=>m.profiles=(m.profiles||[]).filter(x=>x!==p)); if(state.formula.profile===p) state.formula.profile=state.profiles[0]; saveState();render(); };
+function buildMpGuaranteeInputs(mp){const root=document.getElementById('mpGuarantees');root.innerHTML=nutrientDefs.map(n=>`<label class="field">${n.label}<input data-g="${n.key}" type="number" min="0" step="0.001" value="${mp?num(mp.guarantees[n.key])||'':''}"></label>`).join('');root.querySelectorAll('[data-g]').forEach(x=>x.addEventListener('input',updateNWarning))}
+function updateNWarning(){const vals={};document.querySelectorAll('#mpGuarantees [data-g]').forEach(x=>vals[x.dataset.g]=num(x.value));const forms=vals.nNitric+vals.nAmmoniacal+vals.nAmidic,total=vals.nTotal;const el=document.getElementById('nWarning');if(forms>0&&total===0)el.textContent=`N Total será preenchido automaticamente como ${fmt(forms,3)}%.`;else if(forms>total+0.001)el.textContent=`Atenção: formas de N somam ${fmt(forms,3)}%, acima do N Total ${fmt(total,3)}%.`;else el.textContent=''}
+function openMpModal(mp=null,returnToRow=false){document.getElementById('mpEditId').value=mp?.id||'';document.getElementById('mpModal').dataset.returnToRow=returnToRow?'1':'';document.getElementById('mpModalTitle').textContent=mp?'Editar matéria-prima':'Nova matéria-prima';document.getElementById('mpName').value=mp?.name||'';document.getElementById('mpAbbr').value=mp?.abbr||'';document.getElementById('mpType').value=mp?.type||'Fertilizante';document.getElementById('mpPrice').value=mp?.priceTon||'';document.getElementById('mpCurrency').value=mp?.currency||'BRL';document.getElementById('mpMinKg').value=mp?.minKg||'';document.getElementById('mpMaxKg').value=mp?.maxKg??'';document.getElementById('mpNote').value=mp?.note||'';document.getElementById('mpProfiles').innerHTML=state.profiles.map(p=>`<label class="badge"><input style="width:auto" type="checkbox" data-prof="${esc(p)}" ${(mp?.profiles||[state.current.profile]).includes(p)?'checked':''}> ${esc(p)}</label>`).join('');buildMpGuaranteeInputs(mp);updateNWarning();openModal('mpModal')}
+function editMp(id){openMpModal(state.mps.find(m=>m.id===id))}
+function deleteMp(id){if(!confirm('Excluir esta matéria-prima do cadastro? Fórmulas salvas manterão o snapshot já usado.'))return;state.mps=state.mps.filter(m=>m.id!==id);render()}
+function saveMp(){const id=document.getElementById('mpEditId').value||uid(),gs=blank();document.querySelectorAll('#mpGuarantees [data-g]').forEach(x=>gs[x.dataset.g]=num(x.value));const forms=gs.nNitric+gs.nAmmoniacal+gs.nAmidic;if(gs.nTotal<=0&&forms>0)gs.nTotal=forms;if(forms>gs.nTotal+0.01&&!confirm('As formas de N somam mais que o N Total. Salvar mesmo assim?'))return;const mp=normalizeMp({id,name:document.getElementById('mpName').value.trim(),abbr:document.getElementById('mpAbbr').value.trim(),type:document.getElementById('mpType').value,priceTon:num(document.getElementById('mpPrice').value),currency:document.getElementById('mpCurrency').value,minKg:num(document.getElementById('mpMinKg').value),maxKg:document.getElementById('mpMaxKg').value===''?null:num(document.getElementById('mpMaxKg').value),note:document.getElementById('mpNote').value,profiles:[...document.querySelectorAll('#mpProfiles [data-prof]:checked')].map(x=>x.dataset.prof),guarantees:gs});if(!mp.name){toast('Informe o nome da matéria-prima.');return}const idx=state.mps.findIndex(m=>m.id===id);if(idx>=0)state.mps[idx]=mp;else state.mps.push(mp);const returnToRow=document.getElementById('mpModal').dataset.returnToRow==='1';closeModal('mpModal');render();if(returnToRow){openRowModal();document.getElementById('rowMpSelect').value=id;updateRowPreview()}toast('Matéria-prima salva.')}
 
-document.getElementById('saveVersionBtn').onclick=()=>{ const name=state.formula.name||'Formulação'; state.saved.unshift({id:uid(),name,savedAt:new Date().toISOString(),formula:deepCopy(state.formula)}); saveState();renderSaved(); };
-document.getElementById('loadSavedBtn').onclick=()=>{ const id=document.getElementById('savedSelect').value; const s=state.saved.find(x=>x.id===id); if(!s)return; state.formula=deepCopy(s.formula);saveState();render(); };
-document.getElementById('deleteSavedBtn').onclick=()=>{ const id=document.getElementById('savedSelect').value;if(!id)return; state.saved=state.saved.filter(x=>x.id!==id);saveState();renderSaved(); };
+function saveCurrentFormula(){document.getElementById('saveName').value=state.current.name;document.getElementById('saveNote').value=state.current.note||'';openModal('saveModal')}
+function confirmSave(){const name=document.getElementById('saveName').value.trim();if(!name){toast('Informe um nome.');return}state.current.name=name;state.current.note=document.getElementById('saveNote').value;const copy=deep(state.current);copy.updatedAt=Date.now();const idx=state.formulas.findIndex(f=>f.id===copy.id);if(idx>=0)state.formulas[idx]=copy;else state.formulas.push(copy);closeModal('saveModal');render();toast('Fórmula salva.')}
+function newFormula(){if(state.current.rows.length&&!confirm('Iniciar uma nova fórmula? A fórmula atual continua salva somente se você já a salvou na biblioteca.'))return;state.current=defaultFormula();render();switchView('formula')}
+function loadFormula(id){const f=state.formulas.find(x=>x.id===id);if(!f)return;state.current=normalizeFormula(deep(f));render();switchView('formula');toast('Fórmula carregada para edição.')}
+function duplicateFormula(id){const f=state.formulas.find(x=>x.id===id);if(!f)return;const c=normalizeFormula(deep(f));c.id=uid();c.name=f.name+' — cópia';c.createdAt=c.updatedAt=Date.now();state.formulas.push(c);render();toast('Fórmula duplicada.')}
+function deleteFormula(id){if(!confirm('Excluir esta fórmula salva?'))return;state.formulas=state.formulas.filter(f=>f.id!==id);render()}
 
-document.getElementById('exportBackupBtn').onclick=()=>{ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fertcalc_backup.json';a.click();URL.revokeObjectURL(a.href); };
-document.getElementById('importBackupBtn').onclick=()=>document.getElementById('backupFile').click();
-document.getElementById('backupFile').onchange=async e=>{ const f=e.target.files?.[0];if(!f)return; try{ const j=JSON.parse(await f.text()); if(!j.formula||!Array.isArray(j.mps)) throw new Error(); state=j;saveState();render();alert('Backup importado.'); }catch{alert('Backup inválido.')} e.target.value=''; };
+function objective(x,mps,goals,regs,batch,mode){let score=0;for(const k of primaryKeys){const target=num(goals[k]),reg=num(regs[k]);if(!target&&!reg)continue;let val=0;for(let i=0;i<mps.length;i++)val+=x[i]*num(mps[i].guarantees[k])/batch;const scale=Math.max(target||reg,1);if(target)score+=((val-target)/scale)**2*1200;if(reg&&val<reg)score+=((reg-val)/Math.max(reg,1))**2*250000}
+ if(mode==='cost'){let cost=0;for(let i=0;i<mps.length;i++)cost+=x[i]/1000*convertPrice(mps[i].priceTon,mps[i].currency);score+=cost/Math.max(batch,1)*10}
+ if(mode==='few'){score+=x.filter(v=>v>.01).length*.12}return score}
+function solveAutomatic(){const f=state.current,batch=num(f.batchKg)||1000,goals=f.goals,regs=f.regulatory;if(!primaryKeys.some(k=>num(goals[k])>0)){toast('Defina pelo menos uma meta nutricional.');return}let cands=state.mps.filter(m=>(m.profiles||[]).includes(f.profile)).filter(m=>(f.autoCandidates[m.id]?.enabled??true));if(!cands.length){toast('Nenhuma MP candidata selecionada.');return}const minUsed=num(document.getElementById('autoMinUsed').value),mode=document.getElementById('autoMode').value;let mins=cands.map(m=>Math.max(0,num(f.autoCandidates[m.id]?.min??m.minKg))),maxs=cands.map(m=>{const v=f.autoCandidates[m.id]?.max;return v==null?Math.min(batch,m.maxKg??batch):Math.min(batch,num(v))});if(mins.reduce((a,b)=>a+b,0)>batch+1e-6){toast('A soma dos mínimos das MPs excede o lote.');return}
+ let x=mins.slice(),remain=batch-x.reduce((a,b)=>a+b,0);const room=maxs.map((m,i)=>Math.max(0,m-x[i]));let roomSum=room.reduce((a,b)=>a+b,0);if(roomSum+1e-9<remain){toast('Os limites máximos não permitem fechar o lote.');return}for(let i=0;i<x.length;i++){const add=roomSum?remain*room[i]/roomSum:0;x[i]+=add}
+ let best=objective(x,cands,goals,regs,batch,mode);const steps=[100,50,20,10,5,2,1,.5,.2,.1,.05,.02,.01].map(s=>Math.min(s,batch/5)).filter((v,i,a)=>v>0&&a.indexOf(v)===i);for(const step of steps){let changed=true,round=0;while(changed&&round++<30){changed=false;for(let i=0;i<x.length;i++)for(let j=i+1;j<x.length;j++){for(const dir of [1,-1]){const d=step*dir;if(x[i]+d<mins[i]-1e-9||x[i]+d>maxs[i]+1e-9||x[j]-d<mins[j]-1e-9||x[j]-d>maxs[j]+1e-9)continue;x[i]+=d;x[j]-=d;const sc=objective(x,cands,goals,regs,batch,mode);if(sc+1e-12<best){best=sc;changed=true}else{x[i]-=d;x[j]+=d}}}}}
+ // remove operational dust and re-optimize distribution among remaining MPs
+ for(let pass=0;pass<3;pass++){let dust=-1;for(let i=0;i<x.length;i++)if(x[i]>0.0001&&x[i]<Math.max(minUsed,mins[i])){dust=i;break}if(dust<0)break;const qty=x[dust];x[dust]=0;mins[dust]=0;maxs[dust]=0;let bestJ=-1,bestSc=Infinity;for(let j=0;j<x.length;j++){if(j===dust||x[j]+qty>maxs[j]+1e-9)continue;x[j]+=qty;const sc=objective(x,cands,goals,regs,batch,mode);x[j]-=qty;if(sc<bestSc){bestSc=sc;bestJ=j}}if(bestJ>=0)x[bestJ]+=qty;else x[dust]=qty}
+ const rows=cands.map((m,i)=>({id:uid(),mpId:m.id,kg:Math.max(0,x[i]),snapshot:deep(m)})).filter(r=>r.kg>.0001);const result=normalizeFormula({...deep(f),id:uid(),name:f.name+' — automática',rows});state._autoResult=result;renderAutoResult();persist()}
+function renderAutoResult(){const root=document.getElementById('autoResult'),f=state._autoResult;if(!f){root.innerHTML='';return}const c=calcGuarantees(f),cost=costInfo(f),batch=num(f.batchKg)||1,tol=num(document.getElementById('autoTolerance').value)||.02;const main=primaryKeys.filter(k=>num(f.goals[k])||num(f.regulatory[k]));const ok=main.every(k=>(!num(f.regulatory[k])||c[k]>=num(f.regulatory[k])-1e-9)&&(!num(f.goals[k])||Math.abs(c[k]-num(f.goals[k]))<=tol));const rows=f.rows.map((r,i)=>{const mp=getRowMp(r),ci=cost.lines[i],cp=cost.rawBatch?ci.cost/cost.rawBatch*100:0,con=contribution(r,f),det=primaryKeys.filter(k=>con[k].kg>.0001).map(k=>{const share=c[k]?con[k].pp/c[k]*100:0;return `<div class="contrib"><b>${nutrientDefs.find(n=>n.key===k).label}</b><span>${fmt(con[k].kg,3)} kg · ${fmt(con[k].pp,4)} p.p. · ${fmt(share,1)}% do total</span></div>`}).join('');return `<div class="mp-row-card"><div class="mp-row-top"><div><b>${esc(mp.abbr?mp.abbr+' — ':'')}${esc(mp.name)}</b></div><div><b>${fmt(r.kg,2)} kg</b></div></div><div class="mini-grid"><div class="mini"><small>% fórmula</small><b>${fmt(r.kg/batch*100,2)}%</b></div><div class="mini"><small>Custo</small><b>${money(ci.cost,f.baseCurrency)}</b></div><div class="mini"><small>% custo</small><b>${fmt(cp,2)}%</b></div><div class="mini"><small>Preço/t</small><b>${money(ci.price,f.baseCurrency)}</b></div></div><details class="details"><summary>Destrinchar nutrientes entregues</summary><div class="contrib-list">${det}</div></details></div>`}).join('');
+ const metric=main.map(k=>{const n=nutrientDefs.find(x=>x.key===k);return `<div class="metric"><small>${n.label}</small><strong>${fmt(c[k],Math.max(n.decl,2))}</strong><span class="sub">alvo ${fmt(f.goals[k],2)} · garantia ${fmt(declared(c,k),n.decl)} · mín. ${fmt(f.regulatory[k],2)}</span></div>`}).join('');
+ const origins=main.map((k,ki)=>{const n=nutrientDefs.find(x=>x.key===k),parts=f.rows.map((r,i)=>({name:getRowMp(r).abbr||getRowMp(r).name,pp:contribution(r,f)[k].pp,color:colors[i%colors.length]})).filter(x=>x.pp>.00001),tot=parts.reduce((a,b)=>a+b.pp,0)||1;return `<div class="origin-card"><h4>${n.label} — ${fmt(c[k],3)}%</h4><div class="origin-bar">${parts.map(p=>`<i style="width:${p.pp/tot*100}%;background:${p.color}"></i>`).join('')}</div><div class="origin-lines">${parts.map(p=>`${esc(p.name)}: ${fmt(p.pp,3)} p.p. (${fmt(p.pp/tot*100,1)}%)`).join('<br>')}</div></div>`}).join('');
+ const matrixHead='<tr><th>MP</th>'+main.map(k=>`<th class="num">${nutrientDefs.find(n=>n.key===k).label}</th>`).join('')+'</tr>';const matrixRows=f.rows.map(r=>`<tr><td>${esc(getRowMp(r).abbr||getRowMp(r).name)}</td>${main.map(k=>`<td class="num">${contribution(r,f)[k].pp?fmt(contribution(r,f)[k].pp,3):'—'}</td>`).join('')}</tr>`).join('')+`<tr><td><b>TOTAL</b></td>${main.map(k=>`<td class="num"><b>${fmt(c[k],3)}</b></td>`).join('')}</tr>`;
+ root.innerHTML=`<div class="auto-result"><div class="auto-head"><div><h3>${ok?'✓ Formulação encontrada':'⚠ Melhor solução encontrada'}</h3><p>${ok?'Dentro da tolerância e dos mínimos informados.':'Revise os desvios; pode haver restrição matemática ou limites de MP.'}</p></div><div class="toolbar"><button class="btn small primary" onclick="applyAuto()">Aplicar à fórmula</button><button class="btn small" onclick="saveAuto()">Salvar solução</button></div></div><div class="metrics" style="margin-top:12px">${metric}</div><div class="costs"><div class="costbox"><small>Custo/t</small><strong>${money(cost.totalPerTon,f.baseCurrency)}</strong></div><div class="costbox"><small>MPs usadas</small><strong>${f.rows.length}</strong></div><div class="costbox"><small>Lote</small><strong>${fmt(f.rows.reduce((a,r)=>a+r.kg,0),2)} kg</strong></div></div><h3 style="font-size:14px;margin:16px 0 8px">Matérias-primas — custo e contribuição</h3>${rows}<h3 style="font-size:14px;margin:16px 0 8px">Origem de cada nutriente</h3><div class="origin-grid">${origins}</div><h3 style="font-size:14px;margin:16px 0 8px">Matriz de contribuição (p.p. na fórmula)</h3><div class="table-wrap"><table class="matrix"><thead>${matrixHead}</thead><tbody>${matrixRows}</tbody></table></div></div>`}
+function applyAuto(){if(!state._autoResult)return;state.current.rows=deep(state._autoResult.rows);render();toast('Solução aplicada à fórmula.')}
+function saveAuto(){if(!state._autoResult)return;const c=normalizeFormula(deep(state._autoResult));c.id=uid();c.name=c.name||'Solução automática';c.createdAt=c.updatedAt=Date.now();state.formulas.push(c);render();toast('Solução automática salva.')}
 
-document.getElementById('pdfBtn').onclick=printReport;
-function printReport(){
-  const c=calculatedGuarantees(), costs=costData(); const used=state.formula.rows.map(r=>({row:r,mp:state.mps.find(m=>m.id===r.mpId)})).filter(x=>x.mp); const batch=num(state.formula.batchKg)||1; const kn=getKNRatio(c);
-  const nutrientRows=nutrients.map(n=>`<tr><td>${n.label}</td><td>${fmt(state.formula.goals[n.key]||0,n.decimals)}</td><td>${fmt(trunc(c[n.key],n.decimals),n.decimals)}</td><td>${fmt(state.formula.regulatory[n.key]||0,n.decimals)}</td></tr>`).join('');
-  const mpRows=used.map(({row,mp})=>{ const conv=convertToBase(num(mp.priceTon),mp.currency||'BRL'); return `<tr><td>${escapeHtml(mp.name)}</td><td>${fmt(row.kg,2)}</td><td>${fmt(num(row.kg)/batch*100,2)}%</td><td>${currency(conv,state.formula.baseCurrency)}</td><td>${currency(num(row.kg)/1000*conv,state.formula.baseCurrency)}</td></tr>`; }).join('');
-  const allGuarantees=used.map(({mp})=>`<tr><td>${escapeHtml(mp.name)}</td><td>${escapeHtml(mp.abbr||'')}</td><td>${escapeHtml((mp.profiles||[]).join(', '))}</td><td>${escapeHtml(mp.type||'')}</td>${nutrients.map(n=>`<td>${fmt(mp.guarantees?.[n.key]||0,n.decimals)}</td>`).join('')}<td>${currency(mp.priceTon||0,mp.currency||'BRL')}</td></tr>`).join('');
-  const extras=state.formula.extraCosts.map(x=>`<tr><td>${escapeHtml(x.name)}</td><td>${x.type==='percent'?fmt(x.value,2)+'%':currency(x.value,state.formula.baseCurrency)}</td></tr>`).join('');
-  const w=window.open('','_blank');
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(state.formula.name)}</title>
-  <style>
-    @page{size:A4 landscape;margin:12mm} body{font-family:Arial,sans-serif;color:#172033;font-size:10px;margin:0}
-    h1{font-size:22px;margin:0 0 4px} h2{font-size:14px;margin:14px 0 7px}
-    .meta{color:#5f6b7a;margin-bottom:12px}.page{page-break-after:always;min-height:180mm}.page:last-child{page-break-after:auto}
-    table{width:100%;border-collapse:collapse;margin-bottom:10px} th,td{border:1px solid #d6dce7;padding:5px;text-align:right}
-    th{background:#f0f4fa;font-size:8px;text-transform:uppercase} th:first-child,td:first-child{text-align:left}
-    .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0}.card{border:1px solid #d6dce7;border-radius:8px;padding:8px}
-    .card small{color:#667085;display:block}.card b{font-size:16px}.costs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .foot{margin-top:10px;color:#667085;font-size:8px}
-  </style></head><body>
-    <div class="page">
-      <h1>${escapeHtml(state.formula.name)}</h1>
-      <div class="meta">FertCalc · Perfil: ${escapeHtml(state.formula.profile)} · Lote: ${fmt(batch,2)} kg · Moeda-base: ${state.formula.baseCurrency} · Câmbio: USD 1 = BRL ${fmt(state.formula.fxUsdBrl,4)}</div>
-      <div class="cards">
-        <div class="card"><small>N Total</small><b>${fmt(trunc(c.nTotal,1),1)}</b></div>
-        <div class="card"><small>P₂O₅</small><b>${fmt(trunc(c.p,1),1)}</b></div>
-        <div class="card"><small>K₂O</small><b>${fmt(trunc(c.k,1),1)}</b></div>
-        <div class="card"><small>Relação K/N</small><b>${c.nTotal>0?fmt(kn,2):'—'}</b></div>
-        <div class="card"><small>Custo potencial / t</small><b>${currency(costs.finalPerTon,state.formula.baseCurrency)}</b></div>
-      </div>
-      <h2>Formulação</h2>
-      <table><thead><tr><th>MP</th><th>kg</th><th>% fórmula</th><th>Preço/t convertido</th><th>Custo no lote</th></tr></thead><tbody>${mpRows||'<tr><td colspan="5">Sem MPs</td></tr>'}</tbody></table>
-      <h2>Garantias</h2>
-      <table><thead><tr><th>Parâmetro</th><th>Desejado</th><th>Declarado</th><th>Mín. regulatório</th></tr></thead><tbody>${nutrientRows}</tbody></table>
-      <div class="costs">
-        <div><h2>Custos adicionais</h2><table><tbody>${extras||'<tr><td>Nenhum</td><td>—</td></tr>'}</tbody></table></div>
-        <div><h2>Resumo de custo</h2><table><tbody>
-          <tr><td>Matérias-primas / t</td><td>${currency(costs.rawPerTon,state.formula.baseCurrency)}</td></tr>
-          <tr><td>Adicionais / t</td><td>${currency(costs.extraPerTon,state.formula.baseCurrency)}</td></tr>
-          <tr><td><b>Custo potencial / t</b></td><td><b>${currency(costs.finalPerTon,state.formula.baseCurrency)}</b></td></tr>
-        </tbody></table></div>
-      </div>
-      <div class="foot">Valores declarados seguem truncamento configurado no FertCalc. Revise parâmetros regulatórios antes do uso oficial.</div>
-    </div>
-    <div class="page">
-      <h1>Matérias-primas utilizadas</h1>
-      <div class="meta">FertCalc · ${escapeHtml(state.formula.name)}</div>
-      <table style="font-size:7px"><thead><tr><th>MP</th><th>Abrev.</th><th>Perfil</th><th>Tipo</th>${nutrients.map(n=>`<th>${n.label}</th>`).join('')}<th>Preço original</th></tr></thead><tbody>${allGuarantees||'<tr><td colspan="20">Sem MPs utilizadas</td></tr>'}</tbody></table>
-      <div class="foot">Página 2 — cadastro técnico e comercial das matérias-primas efetivamente usadas nesta formulação.</div>
-    </div>
-  </body></html>`);
-  w.document.close(); w.focus(); setTimeout(()=>w.print(),300);
-}
+function switchView(v){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById(v+'View').classList.add('active');state.lastView=v;persist()}
 
-function setupInstall(){
-  const installBtn = document.getElementById('installBtn');
-  let deferredPrompt = null;
-  installBtn.style.display='none';
-  window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; installBtn.style.display='inline-block'; });
-  installBtn.onclick = async ()=>{
-    if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; installBtn.style.display='none'; }
-    else{ alert('Se o navegador não mostrar o prompt, use o menu do navegador e escolha “Adicionar à tela inicial” ou “Instalar aplicativo”.'); }
-  };
-}
-function escapeHtml(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function escapeAttr(s=''){return escapeHtml(s).replace(/`/g,'&#096;')}
-buildGuaranteeInputs(); render(); setupInstall();
+// PDF minimalista, totalmente local, com suporte WinAnsi para português.
+const cp1252Map={'€':128,'‚':130,'ƒ':131,'„':132,'…':133,'†':134,'‡':135,'ˆ':136,'‰':137,'Š':138,'‹':139,'Œ':140,'Ž':142,'‘':145,'’':146,'“':147,'”':148,'•':149,'–':150,'—':151,'˜':152,'™':153,'š':154,'›':155,'œ':156,'ž':158,'Ÿ':159};
+function latinBytes(s){const a=[];for(const ch of String(s)){const code=ch.charCodeAt(0);a.push(code<256?code:(cp1252Map[ch]??63))}return a}
+function pdfEscapeBytes(s){const out=[];for(const b of latinBytes(s)){if(b===40||b===41||b===92)out.push(92,b);else if(b===10||b===13)out.push(32);else out.push(b)}return out}
+function makePdfBlob(form){const calc=calcGuarantees(form),cost=costInfo(form),batch=num(form.batchKg)||1,lines=[];const add=(t='')=>lines.push(String(t));add('FertCalc - Relatorio de formulacao');add(form.name);add(`Perfil: ${form.profile} | Lote: ${fmt(batch,2)} kg | Data: ${new Date().toLocaleString('pt-BR')}`);add('');add('GARANTIAS (%)');for(const k of primaryKeys){const n=nutrientDefs.find(x=>x.key===k);if(calc[k]||form.goals[k]||form.regulatory[k])add(`${n.label}: calculado ${fmt(calc[k],4)} | garantia proposta ${fmt(declared(calc,k),n.decl)} | alvo ${fmt(form.goals[k],3)} | minimo regulatorio ${fmt(form.regulatory[k],3)}`)}add('');add('FORMULACAO');cost.lines.forEach((ci,i)=>{const r=form.rows[i],con=contribution(r,form),cp=cost.rawBatch?ci.cost/cost.rawBatch*100:0;add(`${ci.mp.abbr||ci.mp.name}: ${fmt(r.kg,2)} kg | ${fmt(r.kg/batch*100,2)}% formula | custo ${money(ci.cost,form.baseCurrency)} | ${fmt(cp,2)}% do custo`);for(const k of primaryKeys)if(con[k].kg>.0001)add(`  ${nutrientDefs.find(n=>n.key===k).label}: ${fmt(con[k].kg,3)} kg | ${fmt(con[k].pp,4)} p.p.`)});add('');add(`Custo materias-primas/t: ${money(cost.rawPerTon,form.baseCurrency)}`);add(`Custo total/t: ${money(cost.totalPerTon,form.baseCurrency)}`);add('');add('FORMAS DE NITROGENIO');const nt=calc.nNitric+calc.nAmmoniacal+calc.nAmidic||1;add(`N nitrico: ${fmt(calc.nNitric,4)} p.p. (${fmt(calc.nNitric/nt*100,1)}%)`);add(`N amoniacal: ${fmt(calc.nAmmoniacal,4)} p.p. (${fmt(calc.nAmmoniacal/nt*100,1)}%)`);add(`N amidico: ${fmt(calc.nAmidic,4)} p.p. (${fmt(calc.nAmidic/nt*100,1)}%)`);add('');add('Observacao: conferir enquadramento e regras regulatorias aplicaveis antes de uso oficial.');
+ const perPage=47,pages=[];for(let i=0;i<lines.length;i+=perPage)pages.push(lines.slice(i,i+perPage));const objs=[];objs[1]='<< /Type /Catalog /Pages 2 0 R >>';const pageIds=[],contentIds=[];let next=4;for(let p=0;p<pages.length;p++){pageIds.push(next++);contentIds.push(next++)}objs[2]=`<< /Type /Pages /Kids [${pageIds.map(i=>i+' 0 R').join(' ')}] /Count ${pages.length} >>`;objs[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';for(let p=0;p<pages.length;p++){const content=[];content.push('BT /F1 9 Tf 40 806 Td 12 TL');pages[p].forEach((line,idx)=>{if(idx)content.push('T*');content.push('('+String.fromCharCode(...pdfEscapeBytes(line))+') Tj')});content.push('ET');const cs=content.join('\n');objs[contentIds[p]]=`<< /Length ${latinBytes(cs).length} >>\nstream\n${cs}\nendstream`;objs[pageIds[p]]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentIds[p]} 0 R >>`}
+ let bytes=latinBytes('%PDF-1.4\n%âãÏÓ\n'),offsets=[0];for(let i=1;i<objs.length;i++){offsets[i]=bytes.length;bytes.push(...latinBytes(`${i} 0 obj\n${objs[i]}\nendobj\n`))}const xref=bytes.length;bytes.push(...latinBytes(`xref\n0 ${objs.length}\n0000000000 65535 f \n`));for(let i=1;i<objs.length;i++)bytes.push(...latinBytes(String(offsets[i]).padStart(10,'0')+' 00000 n \n'));bytes.push(...latinBytes(`trailer\n<< /Size ${objs.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`));return new Blob([new Uint8Array(bytes)],{type:'application/pdf'})}
+function safeFilename(s){return (s||'fertcalc').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,80)||'fertcalc'}
+async function sharePdf(form=state.current){const blob=makePdfBlob(form),file=new File([blob],safeFilename(form.name)+'.pdf',{type:'application/pdf'});try{if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){await navigator.share({title:form.name,text:'Relatório FertCalc',files:[file]});return}}catch(e){if(e?.name==='AbortError')return}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Compartilhamento direto indisponível; PDF baixado.')}
+function shareSavedPdf(id){const f=state.formulas.find(x=>x.id===id);if(f)sharePdf(f)}
 
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(console.error);
-  });
-}
+function exportBackup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='fertcalc_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function importBackup(file){const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);const st={...defaultState(),...x};st.mps=(x.mps||[]).map(normalizeMp);st.current=normalizeFormula(x.current||x.formula);st.formulas=(x.formulas||x.saved||[]).map(normalizeFormula);state=st;render();closeModal('backupModal');toast('Backup importado.')}catch(e){alert('Backup inválido.')}};r.readAsText(file)}
+
+// eventos
+for(const b of document.querySelectorAll('.tab'))b.addEventListener('click',()=>switchView(b.dataset.view));
+document.getElementById('formulaName').addEventListener('input',e=>{state.current.name=e.target.value;persist()});document.getElementById('formulaProfile').addEventListener('change',e=>{state.current.profile=e.target.value;render()});document.getElementById('batchKg').addEventListener('change',e=>{state.current.batchKg=Math.max(1,num(e.target.value));render()});document.getElementById('baseCurrency').addEventListener('change',e=>{state.current.baseCurrency=e.target.value;render()});document.getElementById('fx').addEventListener('change',e=>{state.current.fx=num(e.target.value);render()});
+document.getElementById('addMpRowBtn').addEventListener('click',()=>openRowModal());document.getElementById('rowMpSelect').addEventListener('change',updateRowPreview);document.getElementById('rowKg').addEventListener('input',updateRowPreview);document.getElementById('confirmRowBtn').addEventListener('click',confirmRow);document.getElementById('createMpInsideBtn').addEventListener('click',()=>{closeModal('rowModal');openMpModal(null,true)});
+document.getElementById('newMpBtn').addEventListener('click',()=>openMpModal());document.getElementById('saveMpBtn').addEventListener('click',saveMp);document.getElementById('saveFormulaBtn').addEventListener('click',saveCurrentFormula);document.getElementById('confirmSaveBtn').addEventListener('click',confirmSave);document.getElementById('newFormulaBtn').addEventListener('click',newFormula);document.getElementById('newFromLibraryBtn').addEventListener('click',newFormula);document.getElementById('sharePdfBtn').addEventListener('click',()=>sharePdf());document.getElementById('backupBtn').addEventListener('click',()=>openModal('backupModal'));document.getElementById('exportBackupBtn').addEventListener('click',exportBackup);document.getElementById('importBackupBtn').addEventListener('click',()=>document.getElementById('backupFile').click());document.getElementById('backupFile').addEventListener('change',e=>{if(e.target.files[0])importBackup(e.target.files[0]);e.target.value=''});document.getElementById('formulaSearch').addEventListener('input',renderLibrary);document.getElementById('mpSearch').addEventListener('input',renderMps);document.getElementById('mpProfileFilter').addEventListener('change',renderMps);document.getElementById('autoCandidatesBtn').addEventListener('click',()=>{renderCandidates();openModal('candidateModal')});document.getElementById('solveBtn').addEventListener('click',solveAutomatic);
+
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+render();switchView(state.lastView||'formula');
 </script>
 </body>
 </html>
